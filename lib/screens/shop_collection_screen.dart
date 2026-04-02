@@ -10,6 +10,17 @@ import '../widgets/network_image.dart';
 import '../widgets/nav_menu.dart';
 import '../widgets/glass_bottom_nav.dart';
 
+/// **Optimization Log — Screen level:**
+/// 1. `context.select` instead of `context.watch` — the screen now subscribes
+///    ONLY to `provider.products`. Cart mutations (add/remove) no longer trigger
+///    a full screen rebuild; only the `_CartBadge` Consumer handles those.
+/// 2. `_filteredProducts()` is NO LONGER called inside `build()`. Instead the
+///    filter result is cached in `_cachedFiltered` and recomputed only inside
+///    `setState()` calls (i.e. when the actual filter criteria change). This
+///    eliminates repeated sort+filter on every frame / layout pass.
+/// 3. `_buildProductCard` has been replaced by the `_ProductCardItem` widget
+///    class. Sliver delegates now get a properly keyed, separately typed widget
+///    so Flutter's element reconciler can skip unchanged cards during rebuilds.
 class ShopCollectionScreen extends StatefulWidget {
   const ShopCollectionScreen({super.key});
 
@@ -25,8 +36,19 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   final TextEditingController _maxPriceCtrl = TextEditingController();
   String _sortOrder = 'Newest First';
 
+  // Cached filter result — recomputed only on explicit filter changes,
+  // not on every build() call.
+  List<Product> _cachedFiltered = const [];
+
   static const _categories = ['All', 'Bangles', 'Bracelets', 'Chains', 'Earrings', 'Necklaces', 'Pendants', 'Rings'];
-  static const _purities = ['0K', '18K', '22K', '24K'];
+  static const _purities   = ['0K', '18K', '22K', '24K'];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initial population after the first dependency injection.
+    _updateFilter();
+  }
 
   @override
   void dispose() {
@@ -35,9 +57,14 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     super.dispose();
   }
 
-  List<Product> _filteredProducts(List<Product> products) {
+  /// Recomputes `_cachedFiltered` from current filter state + latest product list.
+  /// Called inside every `setState` that mutates a filter criterion, and once
+  /// on `didChangeDependencies` for the initial render.
+  void _updateFilter() {
+    final products = context.read<MockDataProvider>().products;
     var result = products.where((p) {
-      final catMatch = _selectedCategory == 'All' || p.category.toLowerCase() == _selectedCategory.toLowerCase();
+      final catMatch = _selectedCategory == 'All' ||
+          p.category.toLowerCase() == _selectedCategory.toLowerCase();
       final minPrice = double.tryParse(_minPriceCtrl.text);
       final maxPrice = double.tryParse(_maxPriceCtrl.text);
       final minMatch = minPrice == null || p.price >= minPrice;
@@ -48,25 +75,29 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     if (_sortOrder == 'Price: Low to High') result.sort((a, b) => a.price.compareTo(b.price));
     if (_sortOrder == 'Price: High to Low') result.sort((a, b) => b.price.compareTo(a.price));
 
-    return result;
+    _cachedFiltered = result;
   }
 
   void _clearFilters() {
+    _minPriceCtrl.clear();
+    _maxPriceCtrl.clear();
     setState(() {
       _selectedCategory = 'All';
-      _selectedPurity = null;
-      _minPriceCtrl.clear();
-      _maxPriceCtrl.clear();
+      _selectedPurity   = null;
+      _updateFilter();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final allProducts = context.watch<MockDataProvider>().products;
-    final products = _filteredProducts(allProducts);
+    // context.select: rebuilds ONLY when the products list identity changes.
+    // Cart mutations (cartCount, cartTotal) no longer rebuild this screen.
+    context.select<MockDataProvider, List<Product>>((p) => p.products);
+
     final showBottom = Responsive.showBottomNav(context);
-    final isDesktop = Responsive.isDesktop(context);
-    final hPad = Responsive.horizontalPadding(context);
+    final isDesktop  = Responsive.isDesktop(context);
+    final hPad       = Responsive.horizontalPadding(context);
+    final products   = _cachedFiltered;
 
     return Scaffold(
       bottomNavigationBar: showBottom ? const GlassBottomNav(currentPath: '/collection') : null,
@@ -89,27 +120,16 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                 icon: const Icon(Icons.shopping_bag_outlined),
                 onPressed: () => context.push('/cart'),
               ),
-              Consumer<MockDataProvider>(
-                builder: (context, provider, child) {
-                  if (provider.cartCount == 0) return const SizedBox.shrink();
-                  return Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
-                      child: Text(
-                        provider.cartCount.toString(),
-                        style: const TextStyle(color: AppTheme.onPrimary, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  );
-                },
-              ),
+              // _CartBadge is a fine-grained Consumer — only this widget
+              // rebuilds when cartCount changes.
+              const _CartBadge(),
             ],
           ),
           IconButton(icon: const Icon(Icons.person_outline), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.menu), onPressed: () => NavMenu.show(context, currentPath: '/collection')),
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => NavMenu.show(context, currentPath: '/collection'),
+          ),
         ],
       ),
       body: CustomScrollView(
@@ -133,7 +153,9 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
 
                   // Toggle Filter Button
                   OutlinedButton.icon(
-                    onPressed: () => setState(() => _showFilters = !_showFilters),
+                    onPressed: () => setState(() {
+                      _showFilters = !_showFilters;
+                    }),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
                       backgroundColor: _showFilters ? AppTheme.primary : Colors.transparent,
@@ -160,42 +182,52 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Categories
                           Text('Categories', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 16),
                           ..._categories.map((cat) => _FilterOption(
                                 label: cat,
                                 isSelected: _selectedCategory == cat,
-                                onTap: () => setState(() => _selectedCategory = cat),
+                                onTap: () => setState(() {
+                                  _selectedCategory = cat;
+                                  _updateFilter();
+                                }),
                               )),
 
                           const SizedBox(height: 24),
                           Container(height: 1, color: AppTheme.outlineVariant),
                           const SizedBox(height: 24),
 
-                          // Gold Purity
                           Text('Gold Purity', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 16),
                           ..._purities.map((p) => _FilterOption(
                                 label: p,
                                 isSelected: _selectedPurity == p,
-                                onTap: () => setState(() => _selectedPurity = _selectedPurity == p ? null : p),
+                                onTap: () => setState(() {
+                                  _selectedPurity = _selectedPurity == p ? null : p;
+                                  _updateFilter();
+                                }),
                               )),
 
                           const SizedBox(height: 24),
                           Container(height: 1, color: AppTheme.outlineVariant),
                           const SizedBox(height: 24),
 
-                          // Price Range
                           Text('Price Range', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 16),
-                          _PriceField(controller: _minPriceCtrl, hint: 'Min Price', onChanged: (_) => setState(() {})),
+                          _PriceField(
+                            controller: _minPriceCtrl,
+                            hint: 'Min Price',
+                            onChanged: (_) => setState(_updateFilter),
+                          ),
                           const SizedBox(height: 12),
-                          _PriceField(controller: _maxPriceCtrl, hint: 'Max Price', onChanged: (_) => setState(() {})),
+                          _PriceField(
+                            controller: _maxPriceCtrl,
+                            hint: 'Max Price',
+                            onChanged: (_) => setState(_updateFilter),
+                          ),
 
                           const SizedBox(height: 24),
 
-                          // Clear Filters
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
@@ -243,7 +275,10 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                             items: ['Newest First', 'Price: Low to High', 'Price: High to Low', 'Best Selling']
                                 .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                                 .toList(),
-                            onChanged: (v) => setState(() => _sortOrder = v ?? _sortOrder),
+                            onChanged: (v) => setState(() {
+                              _sortOrder = v ?? _sortOrder;
+                              _updateFilter();
+                            }),
                           ),
                         ),
                       ),
@@ -264,7 +299,12 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                 crossAxisSpacing: isDesktop ? 24 : 16,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildProductCard(context, products[index]),
+                // _ProductCardItem is a keyed, separate widget class so Flutter
+                // can skip rebuilding unchanged cards during filter/sort changes.
+                (context, index) => _ProductCardItem(
+                  key: ValueKey(products[index].id),
+                  product: products[index],
+                ),
                 childCount: products.length,
               ),
             ),
@@ -275,8 +315,39 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
       ),
     );
   }
+}
 
-  Widget _buildProductCard(BuildContext context, Product product) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Extracted product card widget
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// **Optimization Log:**
+/// Extracting `_buildProductCard` into a proper `StatelessWidget` with a
+/// `ValueKey` on the product ID means Flutter's element reconciler can:
+///   (a) keep the widget alive in the sliver as items shift position.
+///   (b) skip a rebuild entirely when the product data hasn't changed.
+/// Previously the inline method was a plain function call — Flutter treats
+/// the returned subtree as an anonymous widget and always rebuilds it.
+///
+/// The add-to-cart `BackdropFilter` is wrapped in a `RepaintBoundary` to
+/// isolate it from the rest of the card's paint budget.
+class _ProductCardItem extends StatelessWidget {
+  final Product product;
+
+  const _ProductCardItem({super.key, required this.product});
+
+  // Constant decoration for the "NEW" gradient badge.
+  static const _newBadgeDecoration = BoxDecoration(
+    gradient: LinearGradient(colors: [AppTheme.primary, AppTheme.primaryContainer]),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final mrp       = '₹${(product.price * 1.2).toStringAsFixed(0)}';
+    final price     = '₹${product.price.toStringAsFixed(0)}';
+    final category  = product.category.toUpperCase();
+
     return GestureDetector(
       onTap: () => context.push('/product/${product.id}'),
       child: Column(
@@ -299,14 +370,10 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                   left: 0,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppTheme.primary, AppTheme.primaryContainer],
-                      ),
-                    ),
+                    decoration: _newBadgeDecoration,
                     child: Text(
                       'NEW',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      style: textTheme.labelSmall?.copyWith(
                             color: AppTheme.onPrimary,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 2.0,
@@ -318,23 +385,28 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                 Positioned(
                   bottom: 16,
                   right: 16,
-                  child: ClipRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppTheme.surface.withValues(alpha: 0.8),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.add_shopping_cart, color: AppTheme.primary, size: 20),
-                          onPressed: () {
-                            context.read<MockDataProvider>().addToCart(product);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Added to cart')),
-                            );
-                          },
+                  // RepaintBoundary: isolates the blur effect so the card image
+                  // and surrounding content are not repainted when only the
+                  // button's compositing layer needs updating.
+                  child: RepaintBoundary(
+                    child: ClipRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppTheme.surface.withValues(alpha: 0.8),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.add_shopping_cart, color: AppTheme.primary, size: 20),
+                            onPressed: () {
+                              context.read<MockDataProvider>().addToCart(product);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Added to cart')),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -348,26 +420,20 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                product.category.toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                category,
+                style: textTheme.labelSmall?.copyWith(
                       color: AppTheme.primary,
                       letterSpacing: 4.0,
                       fontSize: 10,
                     ),
               ),
-              Row(
-                children: [
-                  Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle)),
-                  const SizedBox(width: 4),
-                  Text('In Stock', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.green, fontSize: 10)),
-                ],
-              ),
+              const _InStockBadge(),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             product.name,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -375,14 +441,14 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
           Row(
             children: [
               Text(
-                '₹${product.price.toStringAsFixed(0)}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppTheme.primary),
+                price,
+                style: textTheme.titleMedium?.copyWith(color: AppTheme.primary),
               ),
               const SizedBox(width: 8),
               if (product.price > 1000)
                 Text(
-                  '₹${(product.price * 1.2).toStringAsFixed(0)}',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  mrp,
+                  style: textTheme.labelMedium?.copyWith(
                         color: AppTheme.outline,
                         decoration: TextDecoration.lineThrough,
                       ),
@@ -394,6 +460,62 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     );
   }
 }
+
+/// Const widget — built once, never rebuilt.
+class _InStockBadge extends StatelessWidget {
+  const _InStockBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 4,
+          decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          'In Stock',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.green, fontSize: 10),
+        ),
+      ],
+    );
+  }
+}
+
+/// Fine-grained Consumer that only rebuilds the badge dot when cartCount changes.
+/// Defined outside the screen class so it has its own element identity and
+/// doesn't force the surrounding AppBar to rebuild.
+class _CartBadge extends StatelessWidget {
+  const _CartBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final count = context.select<MockDataProvider, int>((p) => p.cartCount);
+    if (count == 0) return const SizedBox.shrink();
+    return Positioned(
+      right: 8,
+      top: 8,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+        child: Text(
+          '$count',
+          style: const TextStyle(
+            color: AppTheme.onPrimary,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Filter widgets (unchanged in appearance, kept as separate const classes)
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _FilterOption extends StatelessWidget {
   final String label;
@@ -446,7 +568,7 @@ class _PriceField extends StatelessWidget {
         filled: true,
         fillColor: AppTheme.surfaceContainerLowest,
         prefixText: '₹  ',
-        prefixStyle: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+        prefixStyle: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: AppTheme.outlineVariant),

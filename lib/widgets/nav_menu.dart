@@ -63,23 +63,9 @@ class NavMenu extends StatelessWidget {
                               context.push('/cart');
                             },
                           ),
-                          Consumer<MockDataProvider>(
-                            builder: (context, provider, child) {
-                              if (provider.cartCount == 0) return const SizedBox.shrink();
-                              return Positioned(
-                                right: 6,
-                                top: 6,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
-                                  child: Text(
-                                    provider.cartCount.toString(),
-                                    style: const TextStyle(color: AppTheme.onPrimary, fontSize: 10, fontWeight: FontWeight.w900),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                          // _NavCartBadge uses context.select — rebuilds only
+                          // when cartCount changes, not on any notifyListeners.
+                          const _NavCartBadge(),
                         ],
                       ),
                       IconButton(
@@ -115,6 +101,37 @@ class NavMenu extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// **Optimization Log:**
+/// `context.select` means this widget only rebuilds when `cartCount`
+/// changes — not on every `notifyListeners()` call from the provider.
+/// Defined as a top-level class (not inline) so Flutter's element tree
+/// gives it a stable identity and can skip its build when count is unchanged.
+class _NavCartBadge extends StatelessWidget {
+  const _NavCartBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final count = context.select<MockDataProvider, int>((p) => p.cartCount);
+    if (count == 0) return const SizedBox.shrink();
+    return Positioned(
+      right: 6,
+      top: 6,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+        child: Text(
+          '$count',
+          style: const TextStyle(
+            color: AppTheme.onPrimary,
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+          ),
         ),
       ),
     );

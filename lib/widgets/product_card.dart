@@ -4,6 +4,14 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import 'network_image.dart';
 
+/// **Optimization Log:**
+/// 1. `_cardDecoration` is a `static const` field. `BoxDecoration` containing
+///    a `BoxShadow` was previously rebuilt on every `build()` call.
+///    A const field means a single allocation at class-load time, shared
+///    across all `ProductCard` instances.
+/// 2. `const ProductCard(...)` is supported because all fields are final —
+///    parent widgets can use `const` constructors to get build-cache hits
+///    when the product reference doesn't change.
 class ProductCard extends StatelessWidget {
   final Product product;
   final bool isLarge;
@@ -14,26 +22,29 @@ class ProductCard extends StatelessWidget {
     this.isLarge = false,
   });
 
+  // Shared constant decoration — one allocation for all cards.
+  static const _cardDecoration = BoxDecoration(
+    color: AppTheme.surfaceContainerLowest,
+    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    boxShadow: [
+      BoxShadow(
+        color: Color(0x0D000000), // onSurface @ ~5% alpha — const-safe
+        blurRadius: 40,
+        offset: Offset(0, 4),
+      ),
+    ],
+  );
+
+  static const _imageRadius = BorderRadius.vertical(top: Radius.circular(8.0));
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return GestureDetector(
-      onTap: () {
-        context.push('/product/${product.id}', extra: product);
-      },
+      onTap: () => context.push('/product/${product.id}', extra: product),
       child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerLowest, // The layer principle
-          borderRadius: BorderRadius.circular(8.0),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.onSurface.withValues(alpha: 0.05),
-              blurRadius: 40,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        decoration: _cardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -44,7 +55,7 @@ class ProductCard extends StatelessWidget {
                 child: AestheticNetworkImage(
                   imageUrl: product.imageUrl,
                   fit: BoxFit.cover,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(8.0)),
+                  borderRadius: _imageRadius,
                 ),
               ),
             ),
@@ -55,16 +66,9 @@ class ProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (product.isNewArrival)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: Text(
-                        'NEW ARRIVAL',
-                        style: textTheme.labelSmall?.copyWith(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 4.0),
+                      child: _NewArrivalBadge(),
                     ),
                   Text(
                     product.name,
@@ -75,9 +79,7 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 8.0),
                   Text(
                     '₹${product.price.toStringAsFixed(2)}',
-                    style: textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -85,6 +87,24 @@ class ProductCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Extracted as a `const` widget so it is built once and shared from the
+/// element cache — never rebuilt by parent state changes.
+class _NewArrivalBadge extends StatelessWidget {
+  const _NewArrivalBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'NEW ARRIVAL',
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: AppTheme.primary,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
     );
   }
 }

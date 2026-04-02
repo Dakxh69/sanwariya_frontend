@@ -159,7 +159,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: thumbnails.length,
-                              separatorBuilder: (_, _a) => const SizedBox(width: 16),
+                              separatorBuilder: (_, i) => const SizedBox(width: 16),
                               itemBuilder: (context, index) {
                                 final isActive = index == _selectedThumbnailIndex;
                                 return GestureDetector(
