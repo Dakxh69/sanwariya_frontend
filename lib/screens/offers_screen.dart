@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../widgets/glass_bottom_nav.dart';
 
 class OffersScreen extends StatelessWidget {
@@ -8,8 +9,13 @@ class OffersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = Responsive.isDesktop(context);
+    final hPad = Responsive.horizontalPadding(context);
+
     return Scaffold(
-      bottomNavigationBar: const GlassBottomNav(currentPath: '/offers'),
+      bottomNavigationBar: Responsive.showBottomNav(context)
+          ? const GlassBottomNav(currentPath: '/offers')
+          : null,
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         leading: BackButton(onPressed: () => context.go('/')),
@@ -27,7 +33,7 @@ class OffersScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          padding: hPad.copyWith(top: 32, bottom: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -117,7 +123,59 @@ class OffersScreen extends StatelessWidget {
               
               const SizedBox(height: 48),
 
-              // Bento Grid Items
+              // Offer tiles — side-by-side on desktop
+              if (isDesktop) ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _buildOfferTile(
+                        context,
+                        title: 'Complementary Gold Coin',
+                        subtitle: 'With every bridal set purchase above ₹2,00,000.',
+                        label: 'Wedding Special',
+                        bgColor: AppTheme.surfaceContainer,
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: _buildOfferTile(
+                        context,
+                        title: '15% Welcome Privilege',
+                        subtitle: 'Join the inner circle of Sanwariya. Unlock your first-time buyer privilege on your debut masterpiece.',
+                        label: 'First Purchase',
+                        bgColor: AppTheme.surfaceContainerLow,
+                        borderLeft: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSmallOfferTile(
+                        context,
+                        icon: Icons.recycling,
+                        title: 'Old Gold Exchange',
+                        subtitle: '0% deduction on market value.',
+                        bgColor: AppTheme.surfaceContainer,
+                        borderTop: true,
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: _buildSmallOfferTile(
+                        context,
+                        icon: Icons.group_add,
+                        title: 'Refer a Peer',
+                        subtitle: 'Earn loyalty points for every successful referral.',
+                        bgColor: AppTheme.surfaceContainerHigh,
+                      ),
+                    ),
+                  ],
+                ),
+              ] else ...[
               _buildOfferTile(
                 context,
                 title: 'Complementary Gold Coin',
@@ -159,6 +217,7 @@ class OffersScreen extends StatelessWidget {
                   ),
                 ],
               ),
+              ],
             ],
           ),
         ),

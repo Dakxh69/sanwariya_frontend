@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../widgets/glass_bottom_nav.dart';
 
 class TrackOrderScreen extends StatelessWidget {
@@ -8,8 +9,13 @@ class TrackOrderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = Responsive.isDesktop(context);
+    final hPad = Responsive.horizontalPadding(context);
+
     return Scaffold(
-      bottomNavigationBar: const GlassBottomNav(currentPath: '/track'),
+      bottomNavigationBar: Responsive.showBottomNav(context)
+          ? const GlassBottomNav(currentPath: '/track')
+          : null,
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
         leading: BackButton(onPressed: () => context.go('/')),
@@ -27,7 +33,7 @@ class TrackOrderScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          padding: hPad.copyWith(top: 40, bottom: 40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -63,8 +69,11 @@ class TrackOrderScreen extends StatelessWidget {
               ),
               const SizedBox(height: 48),
 
-              // Form Card Section
-              Container(
+              // Form Card Section — capped width on desktop
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: isDesktop ? 680 : double.infinity),
+                  child: Container(
                 color: AppTheme.surfaceContainerLow,
                 padding: const EdgeInsets.all(40),
                 width: double.infinity,
@@ -188,9 +197,22 @@ class TrackOrderScreen extends StatelessWidget {
                 ),
               ),
 
+                ),
+              ),
+
               const SizedBox(height: 64),
 
-              // Visual Context Section
+              // Status Indicators — row on desktop, column on mobile
+              if (isDesktop)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildStatusIndicator(context, icon: Icons.inventory_2, title: 'Dispatched', desc: 'Your piece has been meticulously inspected and prepared for travel.')),
+                    Expanded(child: _buildStatusIndicator(context, icon: Icons.local_shipping, title: 'In Transit', desc: 'Securely handled by our premium logistics partners globally.')),
+                    Expanded(child: _buildStatusIndicator(context, icon: Icons.handshake, title: 'Delivered', desc: 'The final reveal of your Sanwariya acquisition.')),
+                  ],
+                )
+              else ...[
               _buildStatusIndicator(
                 context,
                 icon: Icons.inventory_2,
@@ -211,6 +233,7 @@ class TrackOrderScreen extends StatelessWidget {
                 title: 'Delivered',
                 desc: 'The final reveal of your Sanwariya acquisition.',
               ),
+              ],
             ],
           ),
         ),

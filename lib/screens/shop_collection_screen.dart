@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../services/mock_data_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../widgets/network_image.dart';
 import '../widgets/nav_menu.dart';
 import '../widgets/glass_bottom_nav.dart';
@@ -63,9 +64,12 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   Widget build(BuildContext context) {
     final allProducts = context.watch<MockDataProvider>().products;
     final products = _filteredProducts(allProducts);
+    final showBottom = Responsive.showBottomNav(context);
+    final isDesktop = Responsive.isDesktop(context);
+    final hPad = Responsive.horizontalPadding(context);
 
     return Scaffold(
-      bottomNavigationBar: const GlassBottomNav(currentPath: '/collection'),
+      bottomNavigationBar: showBottom ? const GlassBottomNav(currentPath: '/collection') : null,
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         leading: BackButton(onPressed: () => context.pop()),
@@ -112,7 +116,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+              padding: hPad.copyWith(top: 48, bottom: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -251,13 +255,13 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
           ),
 
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: hPad.copyWith(top: 16, bottom: 16),
             sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.55,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: Responsive.gridCrossAxisCount(context),
+                childAspectRatio: isDesktop ? 0.65 : 0.55,
                 mainAxisSpacing: 32,
-                crossAxisSpacing: 16,
+                crossAxisSpacing: isDesktop ? 24 : 16,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => _buildProductCard(context, products[index]),

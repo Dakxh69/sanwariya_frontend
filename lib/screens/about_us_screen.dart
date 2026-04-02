@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final hPad = Responsive.horizontalPadding(context);
+    final heroH = Responsive.value<double>(context, mobile: 400, tablet: 480, desktop: 520);
+    final isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
     return Scaffold(
       backgroundColor: AppTheme.surface,
       appBar: AppBar(
@@ -28,11 +32,10 @@ class AboutUsScreen extends StatelessWidget {
           children: [
             // Hero Section
             Container(
-              height: 400,
+              height: heroH,
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.surfaceContainerLow,
-                // Background image would go here
               ),
               child: Stack(
                 children: [
@@ -49,7 +52,7 @@ class AboutUsScreen extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(32.0),
+                    padding: hPad.copyWith(top: 32, bottom: 32),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -89,7 +92,7 @@ class AboutUsScreen extends StatelessWidget {
 
             // Our Story Section
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 64.0),
+              padding: hPad.copyWith(top: 64, bottom: 64),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -116,7 +119,7 @@ class AboutUsScreen extends StatelessWidget {
             Container(
               color: AppTheme.surfaceContainerLow,
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 64.0),
+              padding: hPad.copyWith(top: 64, bottom: 64),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -135,46 +138,49 @@ class AboutUsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 48),
-                  
-                  _buildValueCard(
-                    context,
-                    icon: Icons.diamond_outlined,
-                    title: 'Quality',
-                    desc: 'We never compromise. Meticulous attention to detail is not a goal; it is our standard.',
-                    bgColor: AppTheme.surfaceContainer,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildValueCard(
-                    context,
-                    icon: Icons.lightbulb_outline,
-                    title: 'Innovation',
-                    desc: 'Blending traditional craftsmanship with contemporary, modern design to create future classics.',
-                    bgColor: AppTheme.surfaceContainerLowest,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildValueCard(
-                    context,
-                    icon: Icons.handshake_outlined,
-                    title: 'Trust',
-                    desc: 'Transparency and authenticity in every transaction, backed by world-class customer service.',
-                    bgColor: AppTheme.surfaceContainer,
-                  ),
-                  const SizedBox(height: 24),
-                  _buildValueCard(
-                    context,
-                    icon: Icons.eco_outlined,
-                    title: 'Sustainability',
-                    desc: 'Ethical sourcing is the heartbeat of our supply chain. We believe luxury should never come at the cost of our planet.',
-                    bgColor: AppTheme.primary,
-                    textColor: AppTheme.onPrimary,
-                  ),
+                  if (isTabletOrDesktop)
+                    // 2-column grid on tablet/desktop
+                    Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildValueCard(context, icon: Icons.diamond_outlined, title: 'Quality', desc: 'We never compromise. Meticulous attention to detail is not a goal; it is our standard.', bgColor: AppTheme.surfaceContainer)),
+                            const SizedBox(width: 24),
+                            Expanded(child: _buildValueCard(context, icon: Icons.lightbulb_outline, title: 'Innovation', desc: 'Blending traditional craftsmanship with contemporary, modern design to create future classics.', bgColor: AppTheme.surfaceContainerLowest)),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _buildValueCard(context, icon: Icons.handshake_outlined, title: 'Trust', desc: 'Transparency and authenticity in every transaction, backed by world-class customer service.', bgColor: AppTheme.surfaceContainer)),
+                            const SizedBox(width: 24),
+                            Expanded(child: _buildValueCard(context, icon: Icons.eco_outlined, title: 'Sustainability', desc: 'Ethical sourcing is the heartbeat of our supply chain. We believe luxury should never come at the cost of our planet.', bgColor: AppTheme.primary, textColor: AppTheme.onPrimary)),
+                          ],
+                        ),
+                      ],
+                    )
+                  else
+                    // Vertical stack on mobile
+                    Column(
+                      children: [
+                        _buildValueCard(context, icon: Icons.diamond_outlined, title: 'Quality', desc: 'We never compromise. Meticulous attention to detail is not a goal; it is our standard.', bgColor: AppTheme.surfaceContainer),
+                        const SizedBox(height: 24),
+                        _buildValueCard(context, icon: Icons.lightbulb_outline, title: 'Innovation', desc: 'Blending traditional craftsmanship with contemporary, modern design to create future classics.', bgColor: AppTheme.surfaceContainerLowest),
+                        const SizedBox(height: 24),
+                        _buildValueCard(context, icon: Icons.handshake_outlined, title: 'Trust', desc: 'Transparency and authenticity in every transaction, backed by world-class customer service.', bgColor: AppTheme.surfaceContainer),
+                        const SizedBox(height: 24),
+                        _buildValueCard(context, icon: Icons.eco_outlined, title: 'Sustainability', desc: 'Ethical sourcing is the heartbeat of our supply chain. We believe luxury should never come at the cost of our planet.', bgColor: AppTheme.primary, textColor: AppTheme.onPrimary),
+                      ],
+                    ),
                 ],
               ),
             ),
             
             // Experience the Atelier
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 64.0),
+              padding: hPad.copyWith(top: 64, bottom: 64),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

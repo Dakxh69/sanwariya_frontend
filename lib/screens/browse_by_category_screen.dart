@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../widgets/glass_bottom_nav.dart';
 import '../widgets/network_image.dart';
 
@@ -9,8 +10,12 @@ class BrowseByCategoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final showBottom = Responsive.showBottomNav(context);
+    final hPad = Responsive.horizontalPadding(context);
+    final isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
+
     return Scaffold(
-      bottomNavigationBar: const GlassBottomNav(currentPath: '/browse'),
+      bottomNavigationBar: showBottom ? const GlassBottomNav(currentPath: '/browse') : null,
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         leading: BackButton(onPressed: () => context.pop()),
@@ -27,7 +32,7 @@ class BrowseByCategoryScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
+        padding: hPad.copyWith(top: 48, bottom: 48),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -56,52 +61,79 @@ class BrowseByCategoryScreen extends StatelessWidget {
             ),
             const SizedBox(height: 64),
             
-            // Bento Grid
-            _buildBentoItem(
-              context: context,
-              title: 'Necklaces',
-              subtitle: 'The Signature Collection',
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDGhP-MYGVrdupr807j4W9sUY8tB9E2hf1S9GJf7n2gIGeyfcFml2t49UmLbF5jNxZceil0AQRj3bV6oAUElhWaZRmZXSk_QQWJIGwEOSBaRA9nPn1nC86gxirZl-2FptOtzQS8-MY7xONd85nAOETwQlE8_XKaDw4Z6BW-H4Y8H1exEr7TRPz2PEjbjZZSULvtMsTrImYU_K_Ft6Ew_jF7t4geB5slrUm2FsxrLnw9_LJbwCbs_aXx6Ilg7178gm28YPn9Ei3xi416',
-              aspectRatio: 16 / 9,
-            ),
-            const SizedBox(height: 24),
-            _buildBentoItem(
-              context: context,
-              title: 'Bangles',
-              subtitle: 'Handcrafted',
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBbdk_KYPd5J7wRCOqjmJIB5TN2wnIl3R4bmhOKyeVdKl7Asz32fcoGDkeBj55Y-6jVY5X3tGYreGTXpiPF18y7bokFP2UfK5qrhsjq9Nj1U2QCi0KKsQWv5Wm7lmZ9RGJzuByRGX54qBkCGW6r-_mSBhc9PpvzV1auxN2Fy45E-Z8UxnjA79lh-e-9IzGl87RaScXWfKvuPKhiZwrS2VNHrSMHij0WFXbLRivkWBuMJ7oC8WbEqK3sH_-N7kHlHnLfCf8qF7oKkOKx',
-              aspectRatio: 16 / 9,
-            ),
-            const SizedBox(height: 24),
-            _buildBentoItem(
-              context: context,
-              title: 'Earrings',
-              subtitle: '',
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAUQYxfFFo8qEO_4oLjf1UQe1mA6hU8j6Vn0jQ7WrnGl16xjHpmkkHaUO0HJwAw11X08Y1-3iEOCzVAVwBhuZitGuNfhn9ErI8uvty9rUEI2IE16p0YYoA0ze0Q0wmC9yUge3EZpbkZt-pDJm1tDyaMdvZm8J9J7c59D39L88cfQ5Iz0mnc3rce2ewK3ZuL-bGHADeIghyybcfsBjdwzzSUGjaDB3d2ElSm_xQyShZsf5u0GrtCUn3j5ctS67qv1UIZXiA2n_Mwk3qs',
-              aspectRatio: 16 / 9,
-            ),
-            const SizedBox(height: 24),
-            _buildBentoItem(
-              context: context,
-              title: 'Rings',
-              subtitle: 'Timeless Vows',
-              imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAYDBfSZQTVV76WvccV0vM9eBSgyL1TchCauE5PB4F8Az0poweey8F3stbJT_UfH9P4bjI0DNV5nGQyc48jkmxe6DBe96UmVonhR4SNSD6GCUdEE0hTL14smy2Gj9yt6IyrX9XTumGGPnR-DFP84GmtStElTAXJ1N6kxYuX72R-rdG6EDtmqEhIPMDpiNW9idVwIIFVmMe6aiovhSyonwr2wjXozz8pdzcGsj6ZzdnZQBafG1U6ipdRIbgICc8359-_9364kLNPjBuH',
-              aspectRatio: 16 / 9,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildBentoItem(
-                    context: context,
-                    title: 'Bridal Sets',
-                    subtitle: '',
-                    aspectRatio: 16 / 9,
-                    imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAgIwlt4q6TRCwehKQxr7Umhp8XgL6BLgaAQ_e5UAIKrsYisrdigt0rlIGn_xoSk8Ie6yhIePwh1s1iOIvua3RyLorW8uOiI9lnPvUgQd9dF2nwidT692-MGaIoEppb6yIQoN4KG8emB2b1-SKmgNWknSuUKmfeeBVuEvj4LtzxzWraoyrQWGgZbWibm2pRBkgadgX9IRNyD0SwVF0_WFMhdUXUmypyrJhf-Mf4SJ14YA-dMBoxr7kJMDzEEYsZ18PsZ7b29UFLoJhn',
+            // Bento Grid — 2-column layout on tablet/desktop
+            if (isTabletOrDesktop)
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: _buildBentoItem(context: context, title: 'Necklaces', subtitle: 'The Signature Collection', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDGhP-MYGVrdupr807j4W9sUY8tB9E2hf1S9GJf7n2gIGeyfcFml2t49UmLbF5jNxZceil0AQRj3bV6oAUElhWaZRmZXSk_QQWJIGwEOSBaRA9nPn1nC86gxirZl-2FptOtzQS8-MY7xONd85nAOETwQlE8_XKaDw4Z6BW-H4Y8H1exEr7TRPz2PEjbjZZSULvtMsTrImYU_K_Ft6Ew_jF7t4geB5slrUm2FsxrLnw9_LJbwCbs_aXx6Ilg7178gm28YPn9Ei3xi416', aspectRatio: 4/3)),
+                      const SizedBox(width: 24),
+                      Expanded(child: _buildBentoItem(context: context, title: 'Bangles', subtitle: 'Handcrafted', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBbdk_KYPd5J7wRCOqjmJIB5TN2wnIl3R4bmhOKyeVdKl7Asz32fcoGDkeBj55Y-6jVY5X3tGYreGTXpiPF18y7bokFP2UfK5qrhsjq9Nj1U2QCi0KKsQWv5Wm7lmZ9RGJzuByRGX54qBkCGW6r-_mSBhc9PpvzV1auxN2Fy45E-Z8UxnjA79lh-e-9IzGl87RaScXWfKvuPKhiZwrS2VNHrSMHij0WFXbLRivkWBuMJ7oC8WbEqK3sH_-N7kHlHnLfCf8qF7oKkOKx', aspectRatio: 4/3)),
+                    ],
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(child: _buildBentoItem(context: context, title: 'Earrings', subtitle: '', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAUQYxfFFo8qEO_4oLjf1UQe1mA6hU8j6Vn0jQ7WrnGl16xjHpmkkHaUO0HJwAw11X08Y1-3iEOCzVAVwBhuZitGuNfhn9ErI8uvty9rUEI2IE16p0YYoA0ze0Q0wmC9yUge3EZpbkZt-pDJm1tDyaMdvZm8J9J7c59D39L88cfQ5Iz0mnc3rce2ewK3ZuL-bGHADeIghyybcfsBjdwzzSUGjaDB3d2ElSm_xQyShZsf5u0GrtCUn3j5ctS67qv1UIZXiA2n_Mwk3qs', aspectRatio: 4/3)),
+                      const SizedBox(width: 24),
+                      Expanded(child: _buildBentoItem(context: context, title: 'Rings', subtitle: 'Timeless Vows', imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAYDBfSZQTVV76WvccV0vM9eBSgyL1TchCauE5PB4F8Az0poweey8F3stbJT_UfH9P4bjI0DNV5nGQyc48jkmxe6DBe96UmVonhR4SNSD6GCUdEE0hTL14smy2Gj9yt6IyrX9XTumGGPnR-DFP84GmtStElTAXJ1N6kxYuX72R-rdG6EDtmqEhIPMDpiNW9idVwIIFVmMe6aiovhSyonwr2wjXozz8pdzcGsj6ZzdnZQBafG1U6ipdRIbgICc8359-_9364kLNPjBuH', aspectRatio: 4/3)),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  _buildBentoItem(context: context, title: 'Bridal Sets', subtitle: '', aspectRatio: 16/5, imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAgIwlt4q6TRCwehKQxr7Umhp8XgL6BLgaAQ_e5UAIKrsYisrdigt0rlIGn_xoSk8Ie6yhIePwh1s1iOIvua3RyLorW8uOiI9lnPvUgQd9dF2nwidT692-MGaIoEppb6yIQoN4KG8emB2b1-SKmgNWknSuUKmfeeBVuEvj4LtzxzWraoyrQWGgZbWibm2pRBkgadgX9IRNyD0SwVF0_WFMhdUXUmypyrJhf-Mf4SJ14YA-dMBoxr7kJMDzEEYsZ18PsZ7b29UFLoJhn'),
+                ],
+              )
+            else
+              Column(
+                children: [
+                  _buildBentoItem(
+                    context: context,
+                    title: 'Necklaces',
+                    subtitle: 'The Signature Collection',
+                    imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDGhP-MYGVrdupr807j4W9sUY8tB9E2hf1S9GJf7n2gIGeyfcFml2t49UmLbF5jNxZceil0AQRj3bV6oAUElhWaZRmZXSk_QQWJIGwEOSBaRA9nPn1nC86gxirZl-2FptOtzQS8-MY7xONd85nAOETwQlE8_XKaDw4Z6BW-H4Y8H1exEr7TRPz2PEjbjZZSULvtMsTrImYU_K_Ft6Ew_jF7t4geB5slrUm2FsxrLnw9_LJbwCbs_aXx6Ilg7178gm28YPn9Ei3xi416',
+                    aspectRatio: 16 / 9,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildBentoItem(
+                    context: context,
+                    title: 'Bangles',
+                    subtitle: 'Handcrafted',
+                    imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBbdk_KYPd5J7wRCOqjmJIB5TN2wnIl3R4bmhOKyeVdKl7Asz32fcoGDkeBj55Y-6jVY5X3tGYreGTXpiPF18y7bokFP2UfK5qrhsjq9Nj1U2QCi0KKsQWv5Wm7lmZ9RGJzuByRGX54qBkCGW6r-_mSBhc9PpvzV1auxN2Fy45E-Z8UxnjA79lh-e-9IzGl87RaScXWfKvuPKhiZwrS2VNHrSMHij0WFXbLRivkWBuMJ7oC8WbEqK3sH_-N7kHlHnLfCf8qF7oKkOKx',
+                    aspectRatio: 16 / 9,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildBentoItem(
+                    context: context,
+                    title: 'Earrings',
+                    subtitle: '',
+                    imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAUQYxfFFo8qEO_4oLjf1UQe1mA6hU8j6Vn0jQ7WrnGl16xjHpmkkHaUO0HJwAw11X08Y1-3iEOCzVAVwBhuZitGuNfhn9ErI8uvty9rUEI2IE16p0YYoA0ze0Q0wmC9yUge3EZpbkZt-pDJm1tDyaMdvZm8J9J7c59D39L88cfQ5Iz0mnc3rce2ewK3ZuL-bGHADeIghyybcfsBjdwzzSUGjaDB3d2ElSm_xQyShZsf5u0GrtCUn3j5ctS67qv1UIZXiA2n_Mwk3qs',
+                    aspectRatio: 16 / 9,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildBentoItem(
+                    context: context,
+                    title: 'Rings',
+                    subtitle: 'Timeless Vows',
+                    imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAYDBfSZQTVV76WvccV0vM9eBSgyL1TchCauE5PB4F8Az0poweey8F3stbJT_UfH9P4bjI0DNV5nGQyc48jkmxe6DBe96UmVonhR4SNSD6GCUdEE0hTL14smy2Gj9yt6IyrX9XTumGGPnR-DFP84GmtStElTAXJ1N6kxYuX72R-rdG6EDtmqEhIPMDpiNW9idVwIIFVmMe6aiovhSyonwr2wjXozz8pdzcGsj6ZzdnZQBafG1U6ipdRIbgICc8359-_9364kLNPjBuH',
+                    aspectRatio: 16 / 9,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildBentoItem(
+                          context: context,
+                          title: 'Bridal Sets',
+                          subtitle: '',
+                          aspectRatio: 16 / 9,
+                          imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAgIwlt4q6TRCwehKQxr7Umhp8XgL6BLgaAQ_e5UAIKrsYisrdigt0rlIGn_xoSk8Ie6yhIePwh1s1iOIvua3RyLorW8uOiI9lnPvUgQd9dF2nwidT692-MGaIoEppb6yIQoN4KG8emB2b1-SKmgNWknSuUKmfeeBVuEvj4LtzxzWraoyrQWGgZbWibm2pRBkgadgX9IRNyD0SwVF0_WFMhdUXUmypyrJhf-Mf4SJ14YA-dMBoxr7kJMDzEEYsZ18PsZ7b29UFLoJhn',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             const SizedBox(height: 24),
             _buildCustomAtelier(context),
             
