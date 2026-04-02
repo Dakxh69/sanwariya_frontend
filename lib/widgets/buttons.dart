@@ -23,7 +23,7 @@ class JewelPrimaryButton extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
-        borderRadius: BorderRadius.circular(8.0), // lg (0.5rem) radius
+        borderRadius: BorderRadius.circular(8.0),
       ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
@@ -39,9 +39,9 @@ class JewelPrimaryButton extends StatelessWidget {
           child: Text(
             text,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppTheme.onPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: AppTheme.onPrimary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -67,7 +67,9 @@ class JewelGhostButton extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.15)), // Ghost Border Fallback
+        border: Border.all(
+          color: AppTheme.outlineVariant.withValues(alpha: 0.15),
+        ),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: TextButton(
@@ -82,9 +84,9 @@ class JewelGhostButton extends StatelessWidget {
           child: Text(
             text,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: AppTheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -110,18 +112,15 @@ class JewelTertiaryButton extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 4.0),
         decoration: const BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: Color(0xFF574500), // on-primary-fixed-variant
-              width: 2.0,
-            ),
+            bottom: BorderSide(color: Color(0xFF574500), width: 2.0),
           ),
         ),
         child: Text(
           text,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: const Color(0xFF574500),
-                fontWeight: FontWeight.w600,
-              ),
+            color: const Color(0xFF574500),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

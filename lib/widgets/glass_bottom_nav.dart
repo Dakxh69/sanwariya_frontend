@@ -3,37 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 
-/// **Optimization Log:**
-/// 1. `RepaintBoundary` wraps the entire nav bar. The backdrop blur creates a
-///    separate compositing layer; without an explicit boundary Flutter may
-///    repaint the blur on every scroll frame. The boundary isolates it so
-///    the blur only recomposites when the nav itself actually changes.
-/// 2. `_NavItem` pre-computes `_upperLabel` once in the constructor. Previously
-///    `label.toUpperCase()` was called inside `build()`, allocating a new
-///    `String` object on every render of every nav item.
-/// 3. Active/inactive `BoxDecoration`s are cached as static constants so the
-///    `BoxDecoration` object is not reconstructed per frame.
 class GlassBottomNav extends StatelessWidget {
   final String currentPath;
 
   const GlassBottomNav({super.key, required this.currentPath});
 
-  // Pre-built constant decoration for the frosted-glass container.
   static const _glassDecoration = BoxDecoration(
-    color: Color(0x99353534), // 0x99 ≈ alpha 0.6 of #353534
+    color: Color(0x99353534),
     boxShadow: [
-      BoxShadow(
-        color: Colors.black54,
-        blurRadius: 48,
-        offset: Offset(0, -24),
-      ),
+      BoxShadow(color: Colors.black54, blurRadius: 48, offset: Offset(0, -24)),
     ],
   );
 
   @override
   Widget build(BuildContext context) {
-    // RepaintBoundary: isolates the blur compositing layer so scrolling the
-    // page content beneath it does not force a re-composite of the blur.
     return RepaintBoundary(
       child: ClipRRect(
         child: BackdropFilter(
@@ -44,11 +27,45 @@ class GlassBottomNav extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _NavItem(icon: Icons.home,                label: 'Home',       isActive: currentPath == '/',           onTap: () { if (currentPath != '/')           context.go('/'); }),
-                _NavItem(icon: Icons.storefront,          label: 'Shop',       isActive: currentPath == '/collection', onTap: () { if (currentPath != '/collection') context.push('/collection'); }),
-                _NavItem(icon: Icons.grid_view,           label: 'Categories', isActive: currentPath == '/browse',     onTap: () { if (currentPath != '/browse')     context.push('/browse'); }),
-                _NavItem(icon: Icons.shopping_bag_outlined, label: 'Cart',     isActive: currentPath == '/cart',       onTap: () { if (currentPath != '/cart')       context.push('/cart'); }),
-                _NavItem(icon: Icons.person_outline,      label: 'Account',    isActive: currentPath == '/login',      onTap: () => context.push('/login')),
+                _NavItem(
+                  icon: Icons.home,
+                  label: 'Home',
+                  isActive: currentPath == '/',
+                  onTap: () {
+                    if (currentPath != '/') context.go('/');
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.storefront,
+                  label: 'Shop',
+                  isActive: currentPath == '/collection',
+                  onTap: () {
+                    if (currentPath != '/collection')
+                      context.push('/collection');
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.grid_view,
+                  label: 'Categories',
+                  isActive: currentPath == '/browse',
+                  onTap: () {
+                    if (currentPath != '/browse') context.push('/browse');
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.shopping_bag_outlined,
+                  label: 'Cart',
+                  isActive: currentPath == '/cart',
+                  onTap: () {
+                    if (currentPath != '/cart') context.push('/cart');
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.person_outline,
+                  label: 'Account',
+                  isActive: currentPath == '/login',
+                  onTap: () => context.push('/login'),
+                ),
               ],
             ),
           ),
@@ -64,7 +81,6 @@ class _NavItem extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  // Pre-computed once in the constructor — avoids String allocation in build().
   final String _upperLabel;
 
   _NavItem({
@@ -74,7 +90,6 @@ class _NavItem extends StatelessWidget {
     required this.onTap,
   }) : _upperLabel = label.toUpperCase();
 
-  // Static cached decorations — no object allocation per build frame.
   static const _activeBorder = BoxDecoration(
     border: Border(top: BorderSide(color: AppTheme.primary, width: 2)),
   );
@@ -84,9 +99,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive
-        ? AppTheme.primary
-        : const Color(0x99F5E9C9); // onSurface @ 0.6 alpha — avoids withValues() allocation
+    final color = isActive ? AppTheme.primary : const Color(0x99F5E9C9);
 
     return GestureDetector(
       onTap: onTap,
@@ -101,10 +114,10 @@ class _NavItem extends StatelessWidget {
             Text(
               _upperLabel,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: color,
-                    fontSize: 10,
-                    letterSpacing: 1.0,
-                  ),
+                color: color,
+                fontSize: 10,
+                letterSpacing: 1.0,
+              ),
             ),
           ],
         ),

@@ -22,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool _isValidPhone(String value) {
-    // Indian mobile: 10 digits, starts with 6-9
     final cleaned = value.replaceAll(RegExp(r'\s|-'), '');
     return RegExp(r'^[6-9]\d{9}$').hasMatch(cleaned);
   }
@@ -38,8 +37,10 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _getErrorMessage(String value) {
     if (value.isEmpty) return 'Phone number is required';
     if (value.length < 10) return 'Enter a 10-digit mobile number';
-    if (!RegExp(r'^[6-9]').hasMatch(value)) return 'Indian mobile numbers start with 6, 7, 8 or 9';
-    if (!_isValidPhone(value)) return 'Enter a valid 10-digit Indian mobile number';
+    if (!RegExp(r'^[6-9]').hasMatch(value))
+      return 'Indian mobile numbers start with 6, 7, 8 or 9';
+    if (!_isValidPhone(value))
+      return 'Enter a valid 10-digit Indian mobile number';
     return null;
   }
 
@@ -49,8 +50,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorText = _getErrorMessage(_phoneCtrl.text.trim());
     });
     if (_errorText == null) {
-      // API_HOOK: Call Firebase Auth verifyPhoneNumber() or POST /api/auth/send-otp { phone: '+91${_phoneCtrl.text}' }
-      // On success, navigate to OTP verification screen with the phone number as a route param
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('OTP sent to +91 ${_phoneCtrl.text.trim()}'),
@@ -86,7 +85,10 @@ class _LoginScreenState extends State<LoginScreen> {
             bool isDesktop = constraints.maxWidth > 768;
 
             Widget formContent = Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 48.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -105,13 +107,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 40),
 
-                  // Phone Number Input
                   Text(
                     'PHONE NUMBER',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       fontSize: 10,
                       letterSpacing: 2.0,
-                      color: _errorText != null ? AppTheme.primary : AppTheme.outline,
+                      color: _errorText != null
+                          ? AppTheme.primary
+                          : AppTheme.outline,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -120,59 +123,79 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text(
                         '+91',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 14),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelSmall?.copyWith(fontSize: 14),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.expand_more, color: AppTheme.outline, size: 16),
+                      const Icon(
+                        Icons.expand_more,
+                        color: AppTheme.outline,
+                        size: 16,
+                      ),
                       const SizedBox(width: 16),
-                      Container(width: 1, height: 24, color: AppTheme.outlineVariant),
+                      Container(
+                        width: 1,
+                        height: 24,
+                        color: AppTheme.outlineVariant,
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: TextField(
                           controller: _phoneCtrl,
                           keyboardType: TextInputType.phone,
                           maxLength: 10,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                           onChanged: _onPhoneChanged,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            fontSize: 18,
-                            letterSpacing: 2.0,
-                          ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(fontSize: 18, letterSpacing: 2.0),
                           decoration: InputDecoration(
                             hintText: 'Enter your mobile number',
                             counterText: '',
-                            hintStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 18,
-                              letterSpacing: 2.0,
-                              color: AppTheme.outline.withValues(alpha: 0.5),
-                            ),
+                            hintStyle: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  fontSize: 18,
+                                  letterSpacing: 2.0,
+                                  color: AppTheme.outline.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
                             border: InputBorder.none,
                           ),
                         ),
                       ),
-                      // Tick icon when valid
+
                       if (_submitted && _errorText == null)
-                        const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 20,
+                        ),
                     ],
                   ),
                   Divider(
-                    color: _errorText != null ? AppTheme.primary : AppTheme.outlineVariant,
+                    color: _errorText != null
+                        ? AppTheme.primary
+                        : AppTheme.outlineVariant,
                     thickness: _errorText != null ? 2 : 1,
                   ),
 
-                  // Inline error message
                   if (_errorText != null) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.error_outline, color: AppTheme.primary, size: 14),
+                        const Icon(
+                          Icons.error_outline,
+                          color: AppTheme.primary,
+                          size: 14,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           _errorText!,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppTheme.primary,
-                            fontSize: 11,
-                          ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: AppTheme.primary, fontSize: 11),
                         ),
                       ],
                     ),
@@ -180,7 +203,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 32),
 
-                  // CTA Action
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -189,7 +211,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         backgroundColor: AppTheme.onSurface,
                         foregroundColor: AppTheme.surfaceContainerLowest,
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
                       ),
                       child: Text(
                         'SEND OTP',
@@ -204,22 +228,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 48),
 
-                  // Alternate Options
                   Row(
                     children: [
-                      Expanded(child: Divider(color: AppTheme.outlineVariant.withValues(alpha: 0.3))),
+                      Expanded(
+                        child: Divider(
+                          color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           'OR CONTINUE WITH',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            fontSize: 10,
-                            letterSpacing: 2.0,
-                            color: AppTheme.outline,
-                          ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                fontSize: 10,
+                                letterSpacing: 2.0,
+                                color: AppTheme.outline,
+                              ),
                         ),
                       ),
-                      Expanded(child: Divider(color: AppTheme.outlineVariant.withValues(alpha: 0.3))),
+                      Expanded(
+                        child: Divider(
+                          color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+                        ),
+                      ),
                     ],
                   ),
 
@@ -230,16 +262,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: OutlinedButton(
                           onPressed: () {},
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
+                            side: BorderSide(
+                              color: AppTheme.outlineVariant.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
                           ),
                           child: Text(
                             'GOOGLE',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 10,
-                              letterSpacing: 2.0,
-                            ),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(fontSize: 10, letterSpacing: 2.0),
                           ),
                         ),
                       ),
@@ -248,16 +284,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: OutlinedButton(
                           onPressed: () {},
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
+                            side: BorderSide(
+                              color: AppTheme.outlineVariant.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
                           ),
                           child: Text(
                             'APPLE ID',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 10,
-                              letterSpacing: 2.0,
-                            ),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(fontSize: 10, letterSpacing: 2.0),
                           ),
                         ),
                       ),
@@ -266,7 +306,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const Spacer(),
 
-                  // Footer Terms
                   Center(
                     child: RichText(
                       textAlign: TextAlign.center,
@@ -277,15 +316,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 1.5,
                         ),
                         children: [
-                          const TextSpan(text: 'By continuing, you agree to our\n'),
+                          const TextSpan(
+                            text: 'By continuing, you agree to our\n',
+                          ),
                           TextSpan(
                             text: 'Terms of Use',
-                            style: TextStyle(color: AppTheme.primary, decoration: TextDecoration.underline),
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                           const TextSpan(text: ' & '),
                           TextSpan(
                             text: 'Privacy Policy',
-                            style: TextStyle(color: AppTheme.primary, decoration: TextDecoration.underline),
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ],
                       ),
@@ -302,7 +349,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Container(
                       color: AppTheme.surfaceContainerLow,
                       child: const Center(
-                        child: Icon(Icons.image, size: 64, color: AppTheme.outlineVariant),
+                        child: Icon(
+                          Icons.image,
+                          size: 64,
+                          color: AppTheme.outlineVariant,
+                        ),
                       ),
                     ),
                   ),

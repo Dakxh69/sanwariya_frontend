@@ -24,7 +24,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // API_HOOK: Replace with GET /api/products/:id — fetch single product by ID from Firestore/backend
     final product = context.select<MockDataProvider, Product?>(
       (provider) => provider.products.firstWhere(
         (p) => p.id == widget.productId,
@@ -57,17 +56,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             Text(
               'Sanwariya',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppTheme.primary,
-                    letterSpacing: 1.5,
-                    fontFamily: 'Noto Serif',
-                  ),
+                color: AppTheme.primary,
+                letterSpacing: 1.5,
+                fontFamily: 'Noto Serif',
+              ),
             ),
             Text(
               'Imitation',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: AppTheme.onSurface,
-                    fontFamily: 'Noto Serif',
-                  ),
+                color: AppTheme.onSurface,
+                fontFamily: 'Noto Serif',
+              ),
             ),
           ],
         ),
@@ -87,10 +86,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     top: 8,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.primary,
+                        shape: BoxShape.circle,
+                      ),
                       child: Text(
                         provider.cartCount.toString(),
-                        style: const TextStyle(color: AppTheme.onPrimary, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: AppTheme.onPrimary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   );
@@ -105,11 +111,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: Responsive.isDesktop(context)
           ? SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 80,
+                  vertical: 40,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left: image + thumbnails
                     Expanded(
                       flex: 5,
                       child: Column(
@@ -131,19 +139,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                      filter: ImageFilter.blur(
+                                        sigmaX: 10,
+                                        sigmaY: 10,
+                                      ),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.surfaceContainer.withValues(alpha: 0.6),
-                                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                                          borderRadius: BorderRadius.circular(8),
+                                          color: AppTheme.surfaceContainer
+                                              .withValues(alpha: 0.6),
+                                          border: Border.all(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Row(
                                           children: [
-                                            const Icon(Icons.threesixty, size: 16, color: AppTheme.onSurface),
+                                            const Icon(
+                                              Icons.threesixty,
+                                              size: 16,
+                                              color: AppTheme.onSurface,
+                                            ),
                                             const SizedBox(width: 8),
-                                            Text('360° View', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.onSurface)),
+                                            Text(
+                                              '360° View',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelSmall
+                                                  ?.copyWith(
+                                                    color: AppTheme.onSurface,
+                                                  ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -159,22 +192,33 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: thumbnails.length,
-                              separatorBuilder: (_, i) => const SizedBox(width: 16),
+                              separatorBuilder: (_, i) =>
+                                  const SizedBox(width: 16),
                               itemBuilder: (context, index) {
-                                final isActive = index == _selectedThumbnailIndex;
+                                final isActive =
+                                    index == _selectedThumbnailIndex;
                                 return GestureDetector(
-                                  onTap: () => setState(() => _selectedThumbnailIndex = index),
+                                  onTap: () => setState(
+                                    () => _selectedThumbnailIndex = index,
+                                  ),
                                   child: Container(
                                     width: 80,
                                     decoration: BoxDecoration(
                                       border: Border.all(
-                                        color: isActive ? AppTheme.primary : AppTheme.outlineVariant.withValues(alpha: 0.3),
+                                        color: isActive
+                                            ? AppTheme.primary
+                                            : AppTheme.outlineVariant
+                                                  .withValues(alpha: 0.3),
                                         width: isActive ? 2 : 1,
                                       ),
                                     ),
                                     child: Opacity(
                                       opacity: isActive ? 1.0 : 0.6,
-                                      child: AestheticNetworkImage(imageUrl: thumbnails[index], fit: BoxFit.cover, borderRadius: BorderRadius.zero),
+                                      child: AestheticNetworkImage(
+                                        imageUrl: thumbnails[index],
+                                        fit: BoxFit.cover,
+                                        borderRadius: BorderRadius.zero,
+                                      ),
                                     ),
                                   ),
                                 );
@@ -185,7 +229,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
                     const SizedBox(width: 64),
-                    // Right: product info
+
                     Expanded(
                       flex: 4,
                       child: _buildProductInfo(context, product),
@@ -199,7 +243,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0,
+                      vertical: 16.0,
+                    ),
                     child: AspectRatio(
                       aspectRatio: 1,
                       child: Stack(
@@ -216,21 +263,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                filter: ImageFilter.blur(
+                                  sigmaX: 10,
+                                  sigmaY: 10,
+                                ),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.surfaceContainer.withValues(alpha: 0.6),
-                                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                                    color: AppTheme.surfaceContainer.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.threesixty, size: 16, color: AppTheme.onSurface),
+                                      const Icon(
+                                        Icons.threesixty,
+                                        size: 16,
+                                        color: AppTheme.onSurface,
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(
                                         '360° View',
-                                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.onSurface),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(
+                                              color: AppTheme.onSurface,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -248,16 +316,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       scrollDirection: Axis.horizontal,
                       itemCount: thumbnails.length,
-                      separatorBuilder: (context, index) => const SizedBox(width: 16),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 16),
                       itemBuilder: (context, index) {
                         final isActive = index == _selectedThumbnailIndex;
                         return GestureDetector(
-                          onTap: () => setState(() => _selectedThumbnailIndex = index),
+                          onTap: () =>
+                              setState(() => _selectedThumbnailIndex = index),
                           child: Container(
                             width: 80,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: isActive ? AppTheme.primary : AppTheme.outlineVariant.withValues(alpha: 0.3),
+                                color: isActive
+                                    ? AppTheme.primary
+                                    : AppTheme.outlineVariant.withValues(
+                                        alpha: 0.3,
+                                      ),
                                 width: isActive ? 2 : 1,
                               ),
                             ),
@@ -287,14 +361,28 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(product.name, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            product.name,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
-              ...List.generate(4, (_) => const Icon(Icons.star, color: AppTheme.primary, size: 20)),
+              ...List.generate(
+                4,
+                (_) =>
+                    const Icon(Icons.star, color: AppTheme.primary, size: 20),
+              ),
               const Icon(Icons.star, color: AppTheme.outlineVariant, size: 20),
               const SizedBox(width: 8),
-              Text('(33 reviews)', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.outlineVariant)),
+              Text(
+                '(33 reviews)',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AppTheme.outlineVariant,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -302,17 +390,40 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('₹${product.price.toStringAsFixed(2)}', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+              Text(
+                '₹${product.price.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(width: 16),
-              Text('₹${(product.price * 1.1).toStringAsFixed(2)}', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppTheme.outlineVariant.withValues(alpha: 0.6), decoration: TextDecoration.lineThrough)),
+              Text(
+                '₹${(product.price * 1.1).toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: AppTheme.outlineVariant.withValues(alpha: 0.6),
+                  decoration: TextDecoration.lineThrough,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
-          Text(product.description, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.onSurfaceVariant, height: 1.6)),
+          Text(
+            product.description,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: AppTheme.onSurfaceVariant,
+              height: 1.6,
+            ),
+          ),
           const SizedBox(height: 32),
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest, border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.1))),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceContainerLowest,
+              border: Border.all(
+                color: AppTheme.outlineVariant.withValues(alpha: 0.1),
+              ),
+            ),
             child: Column(
               children: [
                 _buildSpecRow('Gold Purity:', '22K'),
@@ -326,8 +437,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Availability:', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.onSurface.withValues(alpha: 0.7))),
-                    Text('9 in stock', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.green, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Availability:',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: AppTheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    Text(
+                      '9 in stock',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -339,16 +461,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Text('Quantity:', style: Theme.of(context).textTheme.labelMedium),
               const SizedBox(width: 24),
               Container(
-                decoration: BoxDecoration(border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3))),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+                  ),
+                ),
                 child: Row(
                   children: [
-                    IconButton(onPressed: () { if (_quantity > 1) setState(() => _quantity--); }, icon: const Icon(Icons.remove, color: AppTheme.onSurface)),
-                    Container(
-                      width: 48, height: 48, alignment: Alignment.center,
-                      decoration: BoxDecoration(border: Border.symmetric(vertical: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.3)))),
-                      child: Text(_quantity.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    IconButton(
+                      onPressed: () {
+                        if (_quantity > 1) setState(() => _quantity--);
+                      },
+                      icon: const Icon(Icons.remove, color: AppTheme.onSurface),
                     ),
-                    IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add, color: AppTheme.onSurface)),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border.symmetric(
+                          vertical: BorderSide(
+                            color: AppTheme.outlineVariant.withValues(
+                              alpha: 0.3,
+                            ),
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        _quantity.toString(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => setState(() => _quantity++),
+                      icon: const Icon(Icons.add, color: AppTheme.onSurface),
+                    ),
                   ],
                 ),
               ),
@@ -357,47 +507,134 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () {
-              context.read<MockDataProvider>().addToCart(product, quantity: _quantity);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('${product.name} added to cart'),
-                behavior: SnackBarBehavior.floating,
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                backgroundColor: AppTheme.primary,
-                action: SnackBarAction(label: 'VIEW CART', textColor: AppTheme.onPrimary, onPressed: () => context.push('/cart')),
-              ));
+              context.read<MockDataProvider>().addToCart(
+                product,
+                quantity: _quantity,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${product.name} added to cart'),
+                  behavior: SnackBarBehavior.floating,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  backgroundColor: AppTheme.primary,
+                  action: SnackBarAction(
+                    label: 'VIEW CART',
+                    textColor: AppTheme.onPrimary,
+                    onPressed: () => context.push('/cart'),
+                  ),
+                ),
+              );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, minimumSize: const Size.fromHeight(64), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              minimumSize: const Size.fromHeight(64),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.shopping_cart),
                 const SizedBox(width: 8),
-                Text('ADD TO CART', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.black, fontWeight: FontWeight.bold, letterSpacing: 2.0)),
+                Text(
+                  'ADD TO CART',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           OutlinedButton(
             onPressed: () {
-              context.read<MockDataProvider>().addToCart(product, quantity: _quantity);
+              context.read<MockDataProvider>().addToCart(
+                product,
+                quantity: _quantity,
+              );
               context.push('/cart');
             },
-            style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.primary), minimumSize: const Size.fromHeight(64), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppTheme.primary),
+              minimumSize: const Size.fromHeight(64),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.shopping_cart, color: AppTheme.primary),
                 const SizedBox(width: 8),
-                Text('BUY NOW', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.bold, letterSpacing: 2.0)),
+                Text(
+                  'BUY NOW',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: OutlinedButton.icon(onPressed: () {}, style: OutlinedButton.styleFrom(side: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.3)), minimumSize: const Size.fromHeight(56), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)), icon: const Icon(Icons.favorite_border, color: AppTheme.onSurface), label: Text('Wishlist', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.onSurface)))),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+                    ),
+                    minimumSize: const Size.fromHeight(56),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  icon: const Icon(
+                    Icons.favorite_border,
+                    color: AppTheme.onSurface,
+                  ),
+                  label: Text(
+                    'Wishlist',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: AppTheme.onSurface,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: OutlinedButton.icon(onPressed: () {}, style: OutlinedButton.styleFrom(side: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.3)), minimumSize: const Size.fromHeight(56), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)), icon: const Icon(Icons.share_outlined, color: AppTheme.onSurface), label: Text('Share', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppTheme.onSurface)))),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+                    ),
+                    minimumSize: const Size.fromHeight(56),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  icon: const Icon(
+                    Icons.share_outlined,
+                    color: AppTheme.onSurface,
+                  ),
+                  label: Text(
+                    'Share',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: AppTheme.onSurface,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -412,15 +649,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         Text(
           label,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppTheme.onSurface.withValues(alpha: 0.7),
-              ),
+            color: AppTheme.onSurface.withValues(alpha: 0.7),
+          ),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppTheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
+            color: AppTheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );

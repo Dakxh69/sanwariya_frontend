@@ -35,7 +35,6 @@ class ContactUsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Hero Section
             Container(
               height: heroH,
               width: double.infinity,
@@ -52,9 +51,13 @@ class ContactUsScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.w900,
                       fontSize: 48,
-                      foreground: Paint()..shader = const LinearGradient(
-                        colors: [AppTheme.primary, AppTheme.onSurface],
-                      ).createShader(const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0)),
+                      foreground: Paint()
+                        ..shader =
+                            const LinearGradient(
+                              colors: [AppTheme.primary, AppTheme.onSurface],
+                            ).createShader(
+                              const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -68,8 +71,7 @@ class ContactUsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
-            // Form + Contact Info
+
             if (isDesktop)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 48),
@@ -81,31 +83,85 @@ class ContactUsScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Send Us a Message', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+                          Text(
+                            'Send Us a Message',
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  color: AppTheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                           const SizedBox(height: 8),
-                          Container(height: 2, width: 40, color: AppTheme.primary),
+                          Container(
+                            height: 2,
+                            width: 40,
+                            color: AppTheme.primary,
+                          ),
                           const SizedBox(height: 48),
-                          _buildTextField(context, label: 'FULL NAME', hint: 'E.g., Daksh'),
+                          _buildTextField(
+                            context,
+                            label: 'FULL NAME',
+                            hint: 'E.g., Daksh',
+                          ),
                           const SizedBox(height: 32),
-                          _buildTextField(context, label: 'EMAIL ADDRESS', hint: 'daksh@atelier.com'),
+                          _buildTextField(
+                            context,
+                            label: 'EMAIL ADDRESS',
+                            hint: 'daksh@atelier.com',
+                          ),
                           const SizedBox(height: 32),
-                          _buildTextField(context, label: 'PHONE NUMBER', hint: '+91 7206889607'),
+                          _buildTextField(
+                            context,
+                            label: 'PHONE NUMBER',
+                            hint: '+91 7206889607',
+                          ),
                           const SizedBox(height: 32),
-                          _buildTextField(context, label: 'SUBJECT', hint: 'Bespoke Commission'),
+                          _buildTextField(
+                            context,
+                            label: 'SUBJECT',
+                            hint: 'Bespoke Commission',
+                          ),
                           const SizedBox(height: 32),
-                          _buildTextField(context, label: 'MESSAGE', hint: 'Describe your inquiry...', maxLines: 4),
+                          _buildTextField(
+                            context,
+                            label: 'MESSAGE',
+                            hint: 'Describe your inquiry...',
+                            maxLines: 4,
+                          ),
                           const SizedBox(height: 48),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {},
-                              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 24), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), backgroundColor: AppTheme.primary, foregroundColor: AppTheme.onPrimary),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 24,
+                                ),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                                backgroundColor: AppTheme.primary,
+                                foregroundColor: AppTheme.onPrimary,
+                              ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text('SEND MESSAGE', style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 4.0, color: AppTheme.onPrimary)),
+                                  Text(
+                                    'SEND MESSAGE',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 4.0,
+                                          color: AppTheme.onPrimary,
+                                        ),
+                                  ),
                                   const SizedBox(width: 16),
-                                  const Icon(Icons.arrow_right_alt, color: AppTheme.onPrimary),
+                                  const Icon(
+                                    Icons.arrow_right_alt,
+                                    color: AppTheme.onPrimary,
+                                  ),
                                 ],
                               ),
                             ),
@@ -122,15 +178,41 @@ class ContactUsScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Contact Information', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                            Text(
+                              'Contact Information',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
                             const SizedBox(height: 48),
-                            _buildInfoRow(context, icon: Icons.location_on, label: 'OUR MAISON', text: 'Govind Tower, Shop No. 4-5,\nnear Shyam Nagar Metro Station,\nNew Sanganer Rd, Sodala,\nJaipur, Rajasthan 302019'),
+                            _buildInfoRow(
+                              context,
+                              icon: Icons.location_on,
+                              label: 'OUR MAISON',
+                              text:
+                                  'Govind Tower, Shop No. 4-5,\nnear Shyam Nagar Metro Station,\nNew Sanganer Rd, Sodala,\nJaipur, Rajasthan 302019',
+                            ),
                             const SizedBox(height: 32),
-                            _buildInfoRow(context, icon: Icons.call, label: 'PRIMARY CONCIERGE', text: '+91 6378564718'),
+                            _buildInfoRow(
+                              context,
+                              icon: Icons.call,
+                              label: 'PRIMARY CONCIERGE',
+                              text: '+91 6378564718',
+                            ),
                             const SizedBox(height: 32),
-                            _buildInfoRow(context, icon: Icons.mail, label: 'GENERAL INQUIRIES', text: 'support@sanwariyaimitation.com'),
+                            _buildInfoRow(
+                              context,
+                              icon: Icons.mail,
+                              label: 'GENERAL INQUIRIES',
+                              text: 'support@sanwariyaimitation.com',
+                            ),
                             const SizedBox(height: 32),
-                            _buildInfoRow(context, icon: Icons.schedule, label: 'ATELIER HOURS', text: 'Monday - Saturday: 09:30 AM - 08:00 PM\nSunday: Closed'),
+                            _buildInfoRow(
+                              context,
+                              icon: Icons.schedule,
+                              label: 'ATELIER HOURS',
+                              text:
+                                  'Monday - Saturday: 09:30 AM - 08:00 PM\nSunday: Closed',
+                            ),
                           ],
                         ),
                       ),
@@ -139,95 +221,150 @@ class ContactUsScreen extends StatelessWidget {
                 ),
               )
             else ...[
-            // Form Section
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 48.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Send Us a Message',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppTheme.primary,
-                      fontWeight: FontWeight.bold,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: 48.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Send Us a Message',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: AppTheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(height: 2, width: 40, color: AppTheme.primary),
-                  const SizedBox(height: 48),
-                  
-                  _buildTextField(context, label: 'FULL NAME', hint: 'E.g., Daksh'),
-                  const SizedBox(height: 32),
-                  _buildTextField(context, label: 'EMAIL ADDRESS', hint: 'daksh@atelier.com'),
-                  const SizedBox(height: 32),
-                  _buildTextField(context, label: 'PHONE NUMBER', hint: '+91 7206889607'),
-                  const SizedBox(height: 32),
-                  _buildTextField(context, label: 'SUBJECT', hint: 'Bespoke Commission'),
-                  const SizedBox(height: 32),
-                  _buildTextField(context, label: 'MESSAGE', hint: 'Describe your inquiry...', maxLines: 4),
-                  const SizedBox(height: 48),
-                  
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      // API_HOOK: onPressed → POST /api/contact { name, email, phone, subject, message }
-                      // Show success/failure snackbar based on response
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                        backgroundColor: AppTheme.primary,
-                        foregroundColor: AppTheme.onPrimary,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'SEND MESSAGE',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 4.0,
+                    const SizedBox(height: 8),
+                    Container(height: 2, width: 40, color: AppTheme.primary),
+                    const SizedBox(height: 48),
+
+                    _buildTextField(
+                      context,
+                      label: 'FULL NAME',
+                      hint: 'E.g., Daksh',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildTextField(
+                      context,
+                      label: 'EMAIL ADDRESS',
+                      hint: 'daksh@atelier.com',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildTextField(
+                      context,
+                      label: 'PHONE NUMBER',
+                      hint: '+91 7206889607',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildTextField(
+                      context,
+                      label: 'SUBJECT',
+                      hint: 'Bespoke Commission',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildTextField(
+                      context,
+                      label: 'MESSAGE',
+                      hint: 'Describe your inquiry...',
+                      maxLines: 4,
+                    ),
+                    const SizedBox(height: 48),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                          backgroundColor: AppTheme.primary,
+                          foregroundColor: AppTheme.onPrimary,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'SEND MESSAGE',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 4.0,
+                                    color: AppTheme.onPrimary,
+                                  ),
+                            ),
+                            const SizedBox(width: 16),
+                            const Icon(
+                              Icons.arrow_right_alt,
                               color: AppTheme.onPrimary,
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          const Icon(Icons.arrow_right_alt, color: AppTheme.onPrimary),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            
-            // Contact Information
-            Container(
-              color: AppTheme.surfaceContainerLow,
-              width: double.infinity,
-              padding: EdgeInsets.all(hPad),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Contact Information', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 48),
-                  _buildInfoRow(context, icon: Icons.location_on, label: 'OUR MAISON', text: 'Govind Tower, Shop No. 4-5,\nnear Shyam Nagar Metro Station,\nNew Sanganer Rd, Sodala,\nJaipur, Rajasthan 302019'),
-                  const SizedBox(height: 32),
-                  _buildInfoRow(context, icon: Icons.call, label: 'PRIMARY CONCIERGE', text: '+91 6378564718'),
-                  const SizedBox(height: 32),
-                  _buildInfoRow(context, icon: Icons.mail, label: 'GENERAL INQUIRIES', text: 'support@sanwariyaimitation.com'),
-                  const SizedBox(height: 32),
-                  _buildInfoRow(context, icon: Icons.schedule, label: 'ATELIER HOURS', text: 'Monday - Saturday: 09:30 AM - 08:00 PM\nSunday: Closed'),
-                ],
+
+              Container(
+                color: AppTheme.surfaceContainerLow,
+                width: double.infinity,
+                padding: EdgeInsets.all(hPad),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Contact Information',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 48),
+                    _buildInfoRow(
+                      context,
+                      icon: Icons.location_on,
+                      label: 'OUR MAISON',
+                      text:
+                          'Govind Tower, Shop No. 4-5,\nnear Shyam Nagar Metro Station,\nNew Sanganer Rd, Sodala,\nJaipur, Rajasthan 302019',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildInfoRow(
+                      context,
+                      icon: Icons.call,
+                      label: 'PRIMARY CONCIERGE',
+                      text: '+91 6378564718',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildInfoRow(
+                      context,
+                      icon: Icons.mail,
+                      label: 'GENERAL INQUIRIES',
+                      text: 'support@sanwariyaimitation.com',
+                    ),
+                    const SizedBox(height: 32),
+                    _buildInfoRow(
+                      context,
+                      icon: Icons.schedule,
+                      label: 'ATELIER HOURS',
+                      text:
+                          'Monday - Saturday: 09:30 AM - 08:00 PM\nSunday: Closed',
+                    ),
+                  ],
+                ),
               ),
-            ),
-            ], // end else
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(BuildContext context, {required String label, required String hint, int maxLines = 1}) {
+  Widget _buildTextField(
+    BuildContext context, {
+    required String label,
+    required String hint,
+    int maxLines = 1,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -258,15 +395,20 @@ class ContactUsScreen extends StatelessWidget {
               borderSide: BorderSide(color: AppTheme.primary),
             ),
           ),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            letterSpacing: 1.0,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(letterSpacing: 1.0),
         ),
       ],
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, {required IconData icon, required String label, required String text}) {
+  Widget _buildInfoRow(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String text,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

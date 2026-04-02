@@ -8,9 +8,7 @@ import 'theme/app_theme.dart';
 void main() {
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => MockDataProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => MockDataProvider())],
       child: const DigitalAtelierApp(),
     ),
   );

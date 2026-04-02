@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Dark Mode Tokens from Stitch HTML
   static const Color primary = Color(0xFFF2CA50);
   static const Color onPrimary = Color(0xFF3C2F00);
   static const Color primaryContainer = Color(0xFFD4AF37);
@@ -33,7 +32,7 @@ class AppTheme {
 
   static const Color outline = Color(0xFF99907C);
   static const Color outlineVariant = Color(0xFF4D4635);
-  
+
   static const Color surfaceContainerHighest = Color(0xFF353534);
   static const Color surfaceContainerHigh = Color(0xFF2A2A2A);
   static const Color surfaceContainer = Color(0xFF201F1F);
@@ -68,35 +67,76 @@ class AppTheme {
     onSurfaceVariant: onSurfaceVariant,
     outline: outline,
     outlineVariant: outlineVariant,
-    shadow: Color(0x80000000), // Emulating deep shadows
+    shadow: Color(0x80000000),
   );
 
   static TextTheme textTheme() {
-    // Stitch maps Headline & Body to Noto Serif, and Label to Inter.
-    // Noto Serif represents the editorial/Playfair display vibe.
     final natoSerif = GoogleFonts.notoSerifTextTheme();
     final inter = GoogleFonts.interTextTheme();
 
     return inter.copyWith(
-      displayLarge: natoSerif.displayLarge?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      displayMedium: natoSerif.displayMedium?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      displaySmall: natoSerif.displaySmall?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      headlineLarge: natoSerif.headlineLarge?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      headlineMedium: natoSerif.headlineMedium?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      headlineSmall: natoSerif.headlineSmall?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      titleLarge: natoSerif.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: onSurface),
-      titleMedium: natoSerif.titleMedium?.copyWith(fontWeight: FontWeight.w500, color: onSurface),
-      titleSmall: natoSerif.titleSmall?.copyWith(fontWeight: FontWeight.w500, color: onSurface),
-      
-      // Body uses Noto Serif according to tailwind.config
-      bodyLarge: natoSerif.bodyLarge?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      bodyMedium: natoSerif.bodyMedium?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
-      bodySmall: natoSerif.bodySmall?.copyWith(fontWeight: FontWeight.w400, color: onSurface),
+      displayLarge: natoSerif.displayLarge?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      displayMedium: natoSerif.displayMedium?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      displaySmall: natoSerif.displaySmall?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      headlineLarge: natoSerif.headlineLarge?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      headlineMedium: natoSerif.headlineMedium?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      headlineSmall: natoSerif.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      titleLarge: natoSerif.titleLarge?.copyWith(
+        fontWeight: FontWeight.bold,
+        color: onSurface,
+      ),
+      titleMedium: natoSerif.titleMedium?.copyWith(
+        fontWeight: FontWeight.w500,
+        color: onSurface,
+      ),
+      titleSmall: natoSerif.titleSmall?.copyWith(
+        fontWeight: FontWeight.w500,
+        color: onSurface,
+      ),
 
-      // Label uses Inter
-      labelLarge: inter.labelLarge?.copyWith(fontWeight: FontWeight.w500, color: primary),
-      labelMedium: inter.labelMedium?.copyWith(fontWeight: FontWeight.w500, color: primary),
-      labelSmall: inter.labelSmall?.copyWith(fontWeight: FontWeight.w500, color: primary),
+      bodyLarge: natoSerif.bodyLarge?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      bodyMedium: natoSerif.bodyMedium?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+      bodySmall: natoSerif.bodySmall?.copyWith(
+        fontWeight: FontWeight.w400,
+        color: onSurface,
+      ),
+
+      labelLarge: inter.labelLarge?.copyWith(
+        fontWeight: FontWeight.w500,
+        color: primary,
+      ),
+      labelMedium: inter.labelMedium?.copyWith(
+        fontWeight: FontWeight.w500,
+        color: primary,
+      ),
+      labelSmall: inter.labelSmall?.copyWith(
+        fontWeight: FontWeight.w500,
+        color: primary,
+      ),
     );
   }
 

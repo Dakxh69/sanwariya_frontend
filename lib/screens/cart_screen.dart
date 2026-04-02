@@ -14,10 +14,12 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // API_HOOK: Replace mock cart items with real session data
     final cartItems = context.watch<MockDataProvider>().cartItems;
-    final subtotal = cartItems.fold(0.0, (sum, item) => sum + (item.product.price * item.quantity));
-    final tax = subtotal * 0.18; // 18% GST estimate
+    final subtotal = cartItems.fold(
+      0.0,
+      (sum, item) => sum + (item.product.price * item.quantity),
+    );
+    final tax = subtotal * 0.18;
     final total = subtotal + tax;
 
     final isDesktop = Responsive.isDesktop(context);
@@ -33,15 +35,18 @@ class CartScreen extends StatelessWidget {
         title: Text(
           'SANWARIYA',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.primary,
-                letterSpacing: 3.0,
-                fontFamily: 'Noto Serif',
-              ),
+            color: AppTheme.primary,
+            letterSpacing: 3.0,
+            fontFamily: 'Noto Serif',
+          ),
         ),
         actions: [
           IconButton(icon: const Icon(Icons.person_outline), onPressed: () {}),
           if (!isDesktop)
-            IconButton(icon: const Icon(Icons.menu), onPressed: () => NavMenu.show(context, currentPath: '/cart')),
+            IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => NavMenu.show(context, currentPath: '/cart'),
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -50,13 +55,9 @@ class CartScreen extends StatelessWidget {
             ? Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Left: cart items + guarantees
-                  Expanded(
-                    flex: 6,
-                    child: _buildCartList(context, cartItems),
-                  ),
+                  Expanded(flex: 6, child: _buildCartList(context, cartItems)),
                   const SizedBox(width: 48),
-                  // Right: order summary (sticky)
+
                   SizedBox(
                     width: 380,
                     child: _buildOrderSummary(context, subtotal, tax, total),
@@ -81,7 +82,9 @@ class CartScreen extends StatelessWidget {
       children: [
         Text(
           'Shopping Cart',
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 48),
         if (cartItems.isEmpty)
@@ -92,14 +95,22 @@ class CartScreen extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: cartItems.length,
             separatorBuilder: (context, index) => const SizedBox(height: 32),
-            itemBuilder: (context, index) => _buildCartItem(context, cartItems[index]),
+            itemBuilder: (context, index) =>
+                _buildCartItem(context, cartItems[index]),
           ),
         const SizedBox(height: 64),
         Row(
           children: [
             const Icon(Icons.verified, color: AppTheme.primary, size: 20),
             const SizedBox(width: 16),
-            Text('LIFETIME AUTHENTICITY GUARANTEE', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.outlineVariant, letterSpacing: 2.0, fontSize: 10)),
+            Text(
+              'LIFETIME AUTHENTICITY GUARANTEE',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppTheme.outlineVariant,
+                letterSpacing: 2.0,
+                fontSize: 10,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -107,14 +118,26 @@ class CartScreen extends StatelessWidget {
           children: [
             const Icon(Icons.local_shipping, color: AppTheme.primary, size: 20),
             const SizedBox(width: 16),
-            Text('INSURED WHITE-GLOVE DELIVERY', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.outlineVariant, letterSpacing: 2.0, fontSize: 10)),
+            Text(
+              'INSURED WHITE-GLOVE DELIVERY',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppTheme.outlineVariant,
+                letterSpacing: 2.0,
+                fontSize: 10,
+              ),
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildOrderSummary(BuildContext context, double subtotal, double tax, double total) {
+  Widget _buildOrderSummary(
+    BuildContext context,
+    double subtotal,
+    double tax,
+    double total,
+  ) {
     return Container(
       color: AppTheme.surfaceContainer,
       child: Column(
@@ -127,20 +150,42 @@ class CartScreen extends StatelessWidget {
               children: [
                 Text(
                   'Order Summary',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 32),
-                _buildSummaryRow(context, 'Subtotal', '₹${subtotal.toStringAsFixed(0)}'),
+                _buildSummaryRow(
+                  context,
+                  'Subtotal',
+                  '₹${subtotal.toStringAsFixed(0)}',
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('SHIPPING', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.outline, letterSpacing: 2.0)),
-                    Text('FREE', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.primary, letterSpacing: 2.0)),
+                    Text(
+                      'SHIPPING',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppTheme.outline,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    Text(
+                      'FREE',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppTheme.primary,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildSummaryRow(context, 'Estimated Tax', '₹${tax.toStringAsFixed(0)}'),
+                _buildSummaryRow(
+                  context,
+                  'Estimated Tax',
+                  '₹${tax.toStringAsFixed(0)}',
+                ),
               ],
             ),
           ),
@@ -150,8 +195,19 @@ class CartScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                Text('₹${total.toStringAsFixed(0)}', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+                Text(
+                  'Total',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '₹${total.toStringAsFixed(0)}',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
@@ -161,18 +217,49 @@ class CartScreen extends StatelessWidget {
               children: [
                 Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppTheme.primary, AppTheme.primaryContainer])),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppTheme.primary, AppTheme.primaryContainer],
+                    ),
+                  ),
                   child: ElevatedButton(
                     onPressed: () {},
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: const EdgeInsets.symmetric(vertical: 20), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
-                    child: Text('PROCEED TO CHECKOUT', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.onPrimary, fontWeight: FontWeight.bold, letterSpacing: 2.0)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: Text(
+                      'PROCEED TO CHECKOUT',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppTheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
                 OutlinedButton(
                   onPressed: () => context.go('/'),
-                  style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.primary), minimumSize: const Size.fromHeight(56), shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
-                  child: Text('CONTINUE SHOPPING', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.bold, letterSpacing: 2.0)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppTheme.primary),
+                    minimumSize: const Size.fromHeight(56),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  child: Text(
+                    'CONTINUE SHOPPING',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppTheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 32),
                 const Divider(color: AppTheme.outlineVariant),
@@ -180,14 +267,32 @@ class CartScreen extends StatelessWidget {
                 TextField(
                   decoration: InputDecoration(
                     hintText: 'PROMO CODE',
-                    hintStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.outline.withValues(alpha: 0.4), letterSpacing: 2.0),
+                    hintStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppTheme.outline.withValues(alpha: 0.4),
+                      letterSpacing: 2.0,
+                    ),
                     filled: true,
                     fillColor: AppTheme.surfaceContainerLowest,
-                    suffixIcon: TextButton(onPressed: () {}, child: Text('APPLY', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.primary, fontWeight: FontWeight.bold))),
-                    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.outline)),
-                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppTheme.primary)),
+                    suffixIcon: TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'APPLY',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.outline),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: AppTheme.primary),
+                    ),
                   ),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 2.0),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(letterSpacing: 2.0),
                 ),
               ],
             ),
@@ -203,11 +308,16 @@ class CartScreen extends StatelessWidget {
       children: [
         Text(
           title.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.outline, letterSpacing: 2.0),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: AppTheme.outline,
+            letterSpacing: 2.0,
+          ),
         ),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -244,12 +354,14 @@ class CartScreen extends StatelessWidget {
                           children: [
                             Text(
                               item.product.name,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '22K • 15G',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
                                     color: AppTheme.outline,
                                     letterSpacing: 2.0,
                                   ),
@@ -260,9 +372,9 @@ class CartScreen extends StatelessWidget {
                       Text(
                         '₹${item.product.price.toStringAsFixed(0)}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppTheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -273,20 +385,31 @@ class CartScreen extends StatelessWidget {
                       Container(
                         decoration: const BoxDecoration(
                           color: AppTheme.surfaceContainerLowest,
-                          border: Border(bottom: BorderSide(color: AppTheme.outlineVariant)),
+                          border: Border(
+                            bottom: BorderSide(color: AppTheme.outlineVariant),
+                          ),
                         ),
                         child: Row(
                           children: [
                             IconButton(
                               onPressed: () {
-                                context.read<MockDataProvider>().updateQuantity(item.product.id, -1);
+                                context.read<MockDataProvider>().updateQuantity(
+                                  item.product.id,
+                                  -1,
+                                );
                               },
                               icon: const Icon(Icons.remove, size: 16),
                             ),
-                            Text(item.quantity.toString().padLeft(2, '0'), style: Theme.of(context).textTheme.labelSmall),
+                            Text(
+                              item.quantity.toString().padLeft(2, '0'),
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
                             IconButton(
                               onPressed: () {
-                                context.read<MockDataProvider>().updateQuantity(item.product.id, 1);
+                                context.read<MockDataProvider>().updateQuantity(
+                                  item.product.id,
+                                  1,
+                                );
                               },
                               icon: const Icon(Icons.add, size: 16),
                             ),
@@ -295,16 +418,26 @@ class CartScreen extends StatelessWidget {
                       ),
                       TextButton.icon(
                         onPressed: () {
-                          context.read<MockDataProvider>().removeFromCart(item.product.id);
+                          context.read<MockDataProvider>().removeFromCart(
+                            item.product.id,
+                          );
                         },
-                        icon: const Icon(Icons.delete_outline, size: 16, color: AppTheme.outline),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          size: 16,
+                          color: AppTheme.outline,
+                        ),
                         label: Text(
                           'REMOVE',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.outline, letterSpacing: 2.0),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: AppTheme.outline,
+                                letterSpacing: 2.0,
+                              ),
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

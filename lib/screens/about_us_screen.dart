@@ -9,7 +9,12 @@ class AboutUsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hPad = Responsive.horizontalPadding(context);
-    final heroH = Responsive.value<double>(context, mobile: 400, tablet: 480, desktop: 520);
+    final heroH = Responsive.value<double>(
+      context,
+      mobile: 400,
+      tablet: 480,
+      desktop: 520,
+    );
     final isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
     return Scaffold(
       backgroundColor: AppTheme.surface,
@@ -30,7 +35,6 @@ class AboutUsScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Hero Section
             Container(
               height: heroH,
               width: double.infinity,
@@ -46,7 +50,9 @@ class AboutUsScreen extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          AppTheme.surfaceContainerLowest.withValues(alpha: 0.8),
+                          AppTheme.surfaceContainerLowest.withValues(
+                            alpha: 0.8,
+                          ),
                         ],
                       ),
                     ),
@@ -58,30 +64,37 @@ class AboutUsScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          'THE ATELIER',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppTheme.primary,
-                            letterSpacing: 4.0,
-                          ),
+                          '',
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: AppTheme.primary,
+                                letterSpacing: 4.0,
+                              ),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'About Sanwariya',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 48,
-                          ),
+                          style: Theme.of(context).textTheme.headlineLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 48,
+                              ),
                         ),
                         const SizedBox(height: 16),
-                        Container(height: 4, width: 64, color: AppTheme.primary),
+                        Container(
+                          height: 4,
+                          width: 64,
+                          color: AppTheme.primary,
+                        ),
                         const SizedBox(height: 24),
                         Text(
                           '"Crafting timeless elegance with an unyielding commitment to quality. We illuminate your unique story through the artistry of jewelry."',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppTheme.onSurfaceVariant,
-                            fontStyle: FontStyle.italic,
-                            height: 1.5,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: AppTheme.onSurfaceVariant,
+                                fontStyle: FontStyle.italic,
+                                height: 1.5,
+                              ),
                         ),
                       ],
                     ),
@@ -90,7 +103,6 @@ class AboutUsScreen extends StatelessWidget {
               ),
             ),
 
-            // Our Story Section
             Padding(
               padding: hPad.copyWith(top: 64, bottom: 64),
               child: Column(
@@ -115,7 +127,6 @@ class AboutUsScreen extends StatelessWidget {
               ),
             ),
 
-            // Our Values Section
             Container(
               color: AppTheme.surfaceContainerLow,
               width: double.infinity,
@@ -139,46 +150,109 @@ class AboutUsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 48),
                   if (isTabletOrDesktop)
-                    // 2-column grid on tablet/desktop
                     Column(
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: _buildValueCard(context, icon: Icons.diamond_outlined, title: 'Quality', desc: 'We never compromise. Meticulous attention to detail is not a goal; it is our standard.', bgColor: AppTheme.surfaceContainer)),
+                            Expanded(
+                              child: _buildValueCard(
+                                context,
+                                icon: Icons.diamond_outlined,
+                                title: 'Quality',
+                                desc:
+                                    'We never compromise. Meticulous attention to detail is not a goal; it is our standard.',
+                                bgColor: AppTheme.surfaceContainer,
+                              ),
+                            ),
                             const SizedBox(width: 24),
-                            Expanded(child: _buildValueCard(context, icon: Icons.lightbulb_outline, title: 'Innovation', desc: 'Blending traditional craftsmanship with contemporary, modern design to create future classics.', bgColor: AppTheme.surfaceContainerLowest)),
+                            Expanded(
+                              child: _buildValueCard(
+                                context,
+                                icon: Icons.lightbulb_outline,
+                                title: 'Innovation',
+                                desc:
+                                    'Blending traditional craftsmanship with contemporary, modern design to create future classics.',
+                                bgColor: AppTheme.surfaceContainerLowest,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 24),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: _buildValueCard(context, icon: Icons.handshake_outlined, title: 'Trust', desc: 'Transparency and authenticity in every transaction, backed by world-class customer service.', bgColor: AppTheme.surfaceContainer)),
+                            Expanded(
+                              child: _buildValueCard(
+                                context,
+                                icon: Icons.handshake_outlined,
+                                title: 'Trust',
+                                desc:
+                                    'Transparency and authenticity in every transaction, backed by world-class customer service.',
+                                bgColor: AppTheme.surfaceContainer,
+                              ),
+                            ),
                             const SizedBox(width: 24),
-                            Expanded(child: _buildValueCard(context, icon: Icons.eco_outlined, title: 'Sustainability', desc: 'Ethical sourcing is the heartbeat of our supply chain. We believe luxury should never come at the cost of our planet.', bgColor: AppTheme.primary, textColor: AppTheme.onPrimary)),
+                            Expanded(
+                              child: _buildValueCard(
+                                context,
+                                icon: Icons.eco_outlined,
+                                title: 'Sustainability',
+                                desc:
+                                    'Ethical sourcing is the heartbeat of our supply chain. We believe luxury should never come at the cost of our planet.',
+                                bgColor: AppTheme.primary,
+                                textColor: AppTheme.onPrimary,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     )
                   else
-                    // Vertical stack on mobile
                     Column(
                       children: [
-                        _buildValueCard(context, icon: Icons.diamond_outlined, title: 'Quality', desc: 'We never compromise. Meticulous attention to detail is not a goal; it is our standard.', bgColor: AppTheme.surfaceContainer),
+                        _buildValueCard(
+                          context,
+                          icon: Icons.diamond_outlined,
+                          title: 'Quality',
+                          desc:
+                              'We never compromise. Meticulous attention to detail is not a goal; it is our standard.',
+                          bgColor: AppTheme.surfaceContainer,
+                        ),
                         const SizedBox(height: 24),
-                        _buildValueCard(context, icon: Icons.lightbulb_outline, title: 'Innovation', desc: 'Blending traditional craftsmanship with contemporary, modern design to create future classics.', bgColor: AppTheme.surfaceContainerLowest),
+                        _buildValueCard(
+                          context,
+                          icon: Icons.lightbulb_outline,
+                          title: 'Innovation',
+                          desc:
+                              'Blending traditional craftsmanship with contemporary, modern design to create future classics.',
+                          bgColor: AppTheme.surfaceContainerLowest,
+                        ),
                         const SizedBox(height: 24),
-                        _buildValueCard(context, icon: Icons.handshake_outlined, title: 'Trust', desc: 'Transparency and authenticity in every transaction, backed by world-class customer service.', bgColor: AppTheme.surfaceContainer),
+                        _buildValueCard(
+                          context,
+                          icon: Icons.handshake_outlined,
+                          title: 'Trust',
+                          desc:
+                              'Transparency and authenticity in every transaction, backed by world-class customer service.',
+                          bgColor: AppTheme.surfaceContainer,
+                        ),
                         const SizedBox(height: 24),
-                        _buildValueCard(context, icon: Icons.eco_outlined, title: 'Sustainability', desc: 'Ethical sourcing is the heartbeat of our supply chain. We believe luxury should never come at the cost of our planet.', bgColor: AppTheme.primary, textColor: AppTheme.onPrimary),
+                        _buildValueCard(
+                          context,
+                          icon: Icons.eco_outlined,
+                          title: 'Sustainability',
+                          desc:
+                              'Ethical sourcing is the heartbeat of our supply chain. We believe luxury should never come at the cost of our planet.',
+                          bgColor: AppTheme.primary,
+                          textColor: AppTheme.onPrimary,
+                        ),
                       ],
                     ),
                 ],
               ),
             ),
-            
-            // Experience the Atelier
+
             Padding(
               padding: hPad.copyWith(top: 64, bottom: 64),
               child: Column(
@@ -204,10 +278,12 @@ class AboutUsScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => context.go('/shop'),
+                      onPressed: () => context.go('/collection'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 24),
-                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
                         backgroundColor: AppTheme.primary,
                         foregroundColor: AppTheme.onPrimary,
                       ),
@@ -230,7 +306,14 @@ class AboutUsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildValueCard(BuildContext context, {required IconData icon, required String title, required String desc, required Color bgColor, Color? textColor}) {
+  Widget _buildValueCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String desc,
+    required Color bgColor,
+    Color? textColor,
+  }) {
     return Container(
       width: double.infinity,
       color: bgColor,
@@ -251,7 +334,9 @@ class AboutUsScreen extends StatelessWidget {
           Text(
             desc,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: textColor != null ? textColor.withValues(alpha: 0.8) : AppTheme.onSurfaceVariant,
+              color: textColor != null
+                  ? textColor.withValues(alpha: 0.8)
+                  : AppTheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),

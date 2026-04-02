@@ -33,16 +33,19 @@ class NavMenu extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top App Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
                       'Sanwariya\nImitation',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
                             color: AppTheme.primary,
                             fontFamily: 'Noto Serif',
                             fontWeight: FontWeight.bold,
@@ -57,26 +60,34 @@ class NavMenu extends StatelessWidget {
                         clipBehavior: Clip.none,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.shopping_bag_outlined, color: AppTheme.onSurface),
+                            icon: const Icon(
+                              Icons.shopping_bag_outlined,
+                              color: AppTheme.onSurface,
+                            ),
                             onPressed: () {
                               Navigator.pop(context);
                               context.push('/cart');
                             },
                           ),
-                          // _NavCartBadge uses context.select — rebuilds only
-                          // when cartCount changes, not on any notifyListeners.
+
                           const _NavCartBadge(),
                         ],
                       ),
                       IconButton(
-                        icon: const Icon(Icons.person_outline, color: AppTheme.onSurface),
+                        icon: const Icon(
+                          Icons.person_outline,
+                          color: AppTheme.onSurface,
+                        ),
                         onPressed: () {
                           Navigator.pop(context);
                           context.push('/login');
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: AppTheme.onSurface),
+                        icon: const Icon(
+                          Icons.close,
+                          color: AppTheme.onSurface,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -84,19 +95,49 @@ class NavMenu extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(color: AppTheme.surfaceContainerHighest, thickness: 1),
-            // Menu Items
+            const Divider(
+              color: AppTheme.surfaceContainerHighest,
+              thickness: 1,
+            ),
+
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 24.0,
+                ),
                 children: [
                   _MenuItem(title: 'Home', path: '/', currentPath: currentPath),
-                  _MenuItem(title: 'Shop', path: '/collection', currentPath: currentPath),
-                  _MenuItem(title: 'Categories', path: '/browse', currentPath: currentPath),
-                  _MenuItem(title: 'Offers', path: '/offers', currentPath: currentPath),
-                  _MenuItem(title: 'Track Order', path: '/track', currentPath: currentPath),
-                  _MenuItem(title: 'About', path: '/about', currentPath: currentPath),
-                  _MenuItem(title: 'Contact Us', path: '/contact', currentPath: currentPath),
+                  _MenuItem(
+                    title: 'Shop',
+                    path: '/collection',
+                    currentPath: currentPath,
+                  ),
+                  _MenuItem(
+                    title: 'Categories',
+                    path: '/browse',
+                    currentPath: currentPath,
+                  ),
+                  _MenuItem(
+                    title: 'Offers',
+                    path: '/offers',
+                    currentPath: currentPath,
+                  ),
+                  _MenuItem(
+                    title: 'Track Order',
+                    path: '/track',
+                    currentPath: currentPath,
+                  ),
+                  _MenuItem(
+                    title: 'About',
+                    path: '/about',
+                    currentPath: currentPath,
+                  ),
+                  _MenuItem(
+                    title: 'Contact Us',
+                    path: '/contact',
+                    currentPath: currentPath,
+                  ),
                 ],
               ),
             ),
@@ -107,11 +148,6 @@ class NavMenu extends StatelessWidget {
   }
 }
 
-/// **Optimization Log:**
-/// `context.select` means this widget only rebuilds when `cartCount`
-/// changes — not on every `notifyListeners()` call from the provider.
-/// Defined as a top-level class (not inline) so Flutter's element tree
-/// gives it a stable identity and can skip its build when count is unchanged.
 class _NavCartBadge extends StatelessWidget {
   const _NavCartBadge();
 
@@ -124,7 +160,10 @@ class _NavCartBadge extends StatelessWidget {
       top: 6,
       child: Container(
         padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: AppTheme.primary,
+          shape: BoxShape.circle,
+        ),
         child: Text(
           '$count',
           style: const TextStyle(
@@ -152,7 +191,7 @@ class _MenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isActive = currentPath == path;
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 24.0),
       child: InkWell(

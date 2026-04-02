@@ -10,17 +10,6 @@ import '../widgets/network_image.dart';
 import '../widgets/nav_menu.dart';
 import '../widgets/glass_bottom_nav.dart';
 
-/// **Optimization Log — Screen level:**
-/// 1. `context.select` instead of `context.watch` — the screen now subscribes
-///    ONLY to `provider.products`. Cart mutations (add/remove) no longer trigger
-///    a full screen rebuild; only the `_CartBadge` Consumer handles those.
-/// 2. `_filteredProducts()` is NO LONGER called inside `build()`. Instead the
-///    filter result is cached in `_cachedFiltered` and recomputed only inside
-///    `setState()` calls (i.e. when the actual filter criteria change). This
-///    eliminates repeated sort+filter on every frame / layout pass.
-/// 3. `_buildProductCard` has been replaced by the `_ProductCardItem` widget
-///    class. Sliver delegates now get a properly keyed, separately typed widget
-///    so Flutter's element reconciler can skip unchanged cards during rebuilds.
 class ShopCollectionScreen extends StatefulWidget {
   const ShopCollectionScreen({super.key});
 
@@ -36,17 +25,24 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   final TextEditingController _maxPriceCtrl = TextEditingController();
   String _sortOrder = 'Newest First';
 
-  // Cached filter result — recomputed only on explicit filter changes,
-  // not on every build() call.
   List<Product> _cachedFiltered = const [];
 
-  static const _categories = ['All', 'Bangles', 'Bracelets', 'Chains', 'Earrings', 'Necklaces', 'Pendants', 'Rings'];
-  static const _purities   = ['0K', '18K', '22K', '24K'];
+  static const _categories = [
+    'All',
+    'Bangles',
+    'Bracelets',
+    'Chains',
+    'Earrings',
+    'Necklaces',
+    'Pendants',
+    'Rings',
+  ];
+  static const _purities = ['0K', '18K', '22K', '24K'];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Initial population after the first dependency injection.
+
     _updateFilter();
   }
 
@@ -57,13 +53,11 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     super.dispose();
   }
 
-  /// Recomputes `_cachedFiltered` from current filter state + latest product list.
-  /// Called inside every `setState` that mutates a filter criterion, and once
-  /// on `didChangeDependencies` for the initial render.
   void _updateFilter() {
     final products = context.read<MockDataProvider>().products;
     var result = products.where((p) {
-      final catMatch = _selectedCategory == 'All' ||
+      final catMatch =
+          _selectedCategory == 'All' ||
           p.category.toLowerCase() == _selectedCategory.toLowerCase();
       final minPrice = double.tryParse(_minPriceCtrl.text);
       final maxPrice = double.tryParse(_maxPriceCtrl.text);
@@ -72,8 +66,10 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
       return catMatch && minMatch && maxMatch;
     }).toList();
 
-    if (_sortOrder == 'Price: Low to High') result.sort((a, b) => a.price.compareTo(b.price));
-    if (_sortOrder == 'Price: High to Low') result.sort((a, b) => b.price.compareTo(a.price));
+    if (_sortOrder == 'Price: Low to High')
+      result.sort((a, b) => a.price.compareTo(b.price));
+    if (_sortOrder == 'Price: High to Low')
+      result.sort((a, b) => b.price.compareTo(a.price));
 
     _cachedFiltered = result;
   }
@@ -83,34 +79,34 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     _maxPriceCtrl.clear();
     setState(() {
       _selectedCategory = 'All';
-      _selectedPurity   = null;
+      _selectedPurity = null;
       _updateFilter();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // context.select: rebuilds ONLY when the products list identity changes.
-    // Cart mutations (cartCount, cartTotal) no longer rebuild this screen.
     context.select<MockDataProvider, List<Product>>((p) => p.products);
 
     final showBottom = Responsive.showBottomNav(context);
-    final isDesktop  = Responsive.isDesktop(context);
-    final hPad       = Responsive.horizontalPadding(context);
-    final products   = _cachedFiltered;
+    final isDesktop = Responsive.isDesktop(context);
+    final hPad = Responsive.horizontalPadding(context);
+    final products = _cachedFiltered;
 
     return Scaffold(
-      bottomNavigationBar: showBottom ? const GlassBottomNav(currentPath: '/collection') : null,
+      bottomNavigationBar: showBottom
+          ? const GlassBottomNav(currentPath: '/collection')
+          : null,
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         leading: BackButton(onPressed: () => context.pop()),
         title: Text(
           'SANWARIYA',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.primary,
-                letterSpacing: 3.0,
-                fontFamily: 'Noto Serif',
-              ),
+            color: AppTheme.primary,
+            letterSpacing: 3.0,
+            fontFamily: 'Noto Serif',
+          ),
         ),
         actions: [
           Stack(
@@ -120,8 +116,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                 icon: const Icon(Icons.shopping_bag_outlined),
                 onPressed: () => context.push('/cart'),
               ),
-              // _CartBadge is a fine-grained Consumer — only this widget
-              // rebuilds when cartCount changes.
+
               const _CartBadge(),
             ],
           ),
@@ -142,38 +137,51 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                 children: [
                   Text(
                     'Shop Collection',
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'Discover our exquisite range of handcrafted jewelry',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppTheme.onSurfaceVariant),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppTheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 32),
 
-                  // Toggle Filter Button
                   OutlinedButton.icon(
                     onPressed: () => setState(() {
                       _showFilters = !_showFilters;
                     }),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(56),
-                      backgroundColor: _showFilters ? AppTheme.primary : Colors.transparent,
+                      backgroundColor: _showFilters
+                          ? AppTheme.primary
+                          : Colors.transparent,
                       side: const BorderSide(color: AppTheme.primary),
-                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
-                    icon: Icon(Icons.filter_list, color: _showFilters ? AppTheme.onPrimary : AppTheme.primary),
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: _showFilters
+                          ? AppTheme.onPrimary
+                          : AppTheme.primary,
+                    ),
                     label: Text(
                       _showFilters ? 'HIDE FILTERS' : 'SHOW FILTERS',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: _showFilters ? AppTheme.onPrimary : AppTheme.primary,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.0,
-                          ),
+                        color: _showFilters
+                            ? AppTheme.onPrimary
+                            : AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
                     ),
                   ),
 
-                  // Filter Panel
                   if (_showFilters) ...[
                     const SizedBox(height: 24),
                     Container(
@@ -182,37 +190,55 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Categories', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                          Text(
+                            'Categories',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 16),
-                          ..._categories.map((cat) => _FilterOption(
-                                label: cat,
-                                isSelected: _selectedCategory == cat,
-                                onTap: () => setState(() {
-                                  _selectedCategory = cat;
-                                  _updateFilter();
-                                }),
-                              )),
+                          ..._categories.map(
+                            (cat) => _FilterOption(
+                              label: cat,
+                              isSelected: _selectedCategory == cat,
+                              onTap: () => setState(() {
+                                _selectedCategory = cat;
+                                _updateFilter();
+                              }),
+                            ),
+                          ),
 
                           const SizedBox(height: 24),
                           Container(height: 1, color: AppTheme.outlineVariant),
                           const SizedBox(height: 24),
 
-                          Text('Gold Purity', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                          Text(
+                            'Gold Purity',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 16),
-                          ..._purities.map((p) => _FilterOption(
-                                label: p,
-                                isSelected: _selectedPurity == p,
-                                onTap: () => setState(() {
-                                  _selectedPurity = _selectedPurity == p ? null : p;
-                                  _updateFilter();
-                                }),
-                              )),
+                          ..._purities.map(
+                            (p) => _FilterOption(
+                              label: p,
+                              isSelected: _selectedPurity == p,
+                              onTap: () => setState(() {
+                                _selectedPurity = _selectedPurity == p
+                                    ? null
+                                    : p;
+                                _updateFilter();
+                              }),
+                            ),
+                          ),
 
                           const SizedBox(height: 24),
                           Container(height: 1, color: AppTheme.outlineVariant),
                           const SizedBox(height: 24),
 
-                          Text('Price Range', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                          Text(
+                            'Price Range',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 16),
                           _PriceField(
                             controller: _minPriceCtrl,
@@ -233,13 +259,18 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                             child: OutlinedButton(
                               onPressed: _clearFilters,
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 side: const BorderSide(color: AppTheme.primary),
-                                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
                               ),
                               child: Text(
                                 'Clear Filters',
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(
                                       color: AppTheme.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -258,7 +289,9 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                     children: [
                       Text(
                         '${products.length} products found',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.onSurface),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppTheme.onSurface,
+                        ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -269,12 +302,27 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _sortOrder,
-                            icon: const Icon(Icons.expand_more, color: AppTheme.outline),
+                            icon: const Icon(
+                              Icons.expand_more,
+                              color: AppTheme.outline,
+                            ),
                             dropdownColor: AppTheme.surfaceContainerHigh,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppTheme.onSurface),
-                            items: ['Newest First', 'Price: Low to High', 'Price: High to Low', 'Best Selling']
-                                .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                                .toList(),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(color: AppTheme.onSurface),
+                            items:
+                                [
+                                      'Newest First',
+                                      'Price: Low to High',
+                                      'Price: High to Low',
+                                      'Best Selling',
+                                    ]
+                                    .map(
+                                      (s) => DropdownMenuItem(
+                                        value: s,
+                                        child: Text(s),
+                                      ),
+                                    )
+                                    .toList(),
                             onChanged: (v) => setState(() {
                               _sortOrder = v ?? _sortOrder;
                               _updateFilter();
@@ -299,8 +347,6 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                 crossAxisSpacing: isDesktop ? 24 : 16,
               ),
               delegate: SliverChildBuilderDelegate(
-                // _ProductCardItem is a keyed, separate widget class so Flutter
-                // can skip rebuilding unchanged cards during filter/sort changes.
                 (context, index) => _ProductCardItem(
                   key: ValueKey(products[index].id),
                   product: products[index],
@@ -317,36 +363,23 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Extracted product card widget
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// **Optimization Log:**
-/// Extracting `_buildProductCard` into a proper `StatelessWidget` with a
-/// `ValueKey` on the product ID means Flutter's element reconciler can:
-///   (a) keep the widget alive in the sliver as items shift position.
-///   (b) skip a rebuild entirely when the product data hasn't changed.
-/// Previously the inline method was a plain function call — Flutter treats
-/// the returned subtree as an anonymous widget and always rebuilds it.
-///
-/// The add-to-cart `BackdropFilter` is wrapped in a `RepaintBoundary` to
-/// isolate it from the rest of the card's paint budget.
 class _ProductCardItem extends StatelessWidget {
   final Product product;
 
   const _ProductCardItem({super.key, required this.product});
 
-  // Constant decoration for the "NEW" gradient badge.
   static const _newBadgeDecoration = BoxDecoration(
-    gradient: LinearGradient(colors: [AppTheme.primary, AppTheme.primaryContainer]),
+    gradient: LinearGradient(
+      colors: [AppTheme.primary, AppTheme.primaryContainer],
+    ),
   );
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final mrp       = '₹${(product.price * 1.2).toStringAsFixed(0)}';
-    final price     = '₹${product.price.toStringAsFixed(0)}';
-    final category  = product.category.toUpperCase();
+    final mrp = '₹${(product.price * 1.2).toStringAsFixed(0)}';
+    final price = '₹${product.price.toStringAsFixed(0)}';
+    final category = product.category.toUpperCase();
 
     return GestureDetector(
       onTap: () => context.push('/product/${product.id}'),
@@ -369,25 +402,26 @@ class _ProductCardItem extends StatelessWidget {
                   top: 16,
                   left: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: _newBadgeDecoration,
                     child: Text(
                       'NEW',
                       style: textTheme.labelSmall?.copyWith(
-                            color: AppTheme.onPrimary,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 2.0,
-                            fontSize: 10,
-                          ),
+                        color: AppTheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                        fontSize: 10,
+                      ),
                     ),
                   ),
                 ),
                 Positioned(
                   bottom: 16,
                   right: 16,
-                  // RepaintBoundary: isolates the blur effect so the card image
-                  // and surrounding content are not repainted when only the
-                  // button's compositing layer needs updating.
+
                   child: RepaintBoundary(
                     child: ClipRect(
                       child: BackdropFilter(
@@ -399,9 +433,15 @@ class _ProductCardItem extends StatelessWidget {
                             color: AppTheme.surface.withValues(alpha: 0.8),
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.add_shopping_cart, color: AppTheme.primary, size: 20),
+                            icon: const Icon(
+                              Icons.add_shopping_cart,
+                              color: AppTheme.primary,
+                              size: 20,
+                            ),
                             onPressed: () {
-                              context.read<MockDataProvider>().addToCart(product);
+                              context.read<MockDataProvider>().addToCart(
+                                product,
+                              );
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Added to cart')),
                               );
@@ -422,10 +462,10 @@ class _ProductCardItem extends StatelessWidget {
               Text(
                 category,
                 style: textTheme.labelSmall?.copyWith(
-                      color: AppTheme.primary,
-                      letterSpacing: 4.0,
-                      fontSize: 10,
-                    ),
+                  color: AppTheme.primary,
+                  letterSpacing: 4.0,
+                  fontSize: 10,
+                ),
               ),
               const _InStockBadge(),
             ],
@@ -449,9 +489,9 @@ class _ProductCardItem extends StatelessWidget {
                 Text(
                   mrp,
                   style: textTheme.labelMedium?.copyWith(
-                        color: AppTheme.outline,
-                        decoration: TextDecoration.lineThrough,
-                      ),
+                    color: AppTheme.outline,
+                    decoration: TextDecoration.lineThrough,
+                  ),
                 ),
             ],
           ),
@@ -461,7 +501,6 @@ class _ProductCardItem extends StatelessWidget {
   }
 }
 
-/// Const widget — built once, never rebuilt.
 class _InStockBadge extends StatelessWidget {
   const _InStockBadge();
 
@@ -472,21 +511,23 @@ class _InStockBadge extends StatelessWidget {
         Container(
           width: 4,
           height: 4,
-          decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+          decoration: const BoxDecoration(
+            color: Colors.green,
+            shape: BoxShape.circle,
+          ),
         ),
         const SizedBox(width: 4),
         Text(
           'In Stock',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.green, fontSize: 10),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: Colors.green, fontSize: 10),
         ),
       ],
     );
   }
 }
 
-/// Fine-grained Consumer that only rebuilds the badge dot when cartCount changes.
-/// Defined outside the screen class so it has its own element identity and
-/// doesn't force the surrounding AppBar to rebuild.
 class _CartBadge extends StatelessWidget {
   const _CartBadge();
 
@@ -499,7 +540,10 @@ class _CartBadge extends StatelessWidget {
       top: 8,
       child: Container(
         padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: AppTheme.primary,
+          shape: BoxShape.circle,
+        ),
         child: Text(
           '$count',
           style: const TextStyle(
@@ -513,16 +557,16 @@ class _CartBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Filter widgets (unchanged in appearance, kept as separate const classes)
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _FilterOption extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _FilterOption({required this.label, required this.isSelected, required this.onTap});
+  const _FilterOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -533,15 +577,19 @@ class _FilterOption extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primary.withValues(alpha: 0.15) : Colors.transparent,
-          border: isSelected ? Border.all(color: AppTheme.primary.withValues(alpha: 0.4)) : null,
+          color: isSelected
+              ? AppTheme.primary.withValues(alpha: 0.15)
+              : Colors.transparent,
+          border: isSelected
+              ? Border.all(color: AppTheme.primary.withValues(alpha: 0.4))
+              : null,
         ),
         child: Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: isSelected ? AppTheme.primary : AppTheme.onSurface,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
+            color: isSelected ? AppTheme.primary : AppTheme.onSurface,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );
@@ -553,7 +601,11 @@ class _PriceField extends StatelessWidget {
   final String hint;
   final ValueChanged<String> onChanged;
 
-  const _PriceField({required this.controller, required this.hint, required this.onChanged});
+  const _PriceField({
+    required this.controller,
+    required this.hint,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -561,14 +613,21 @@ class _PriceField extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.number,
       onChanged: onChanged,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.onSurface),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: AppTheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: AppTheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        hintStyle: TextStyle(
+          color: AppTheme.onSurfaceVariant.withValues(alpha: 0.5),
+        ),
         filled: true,
         fillColor: AppTheme.surfaceContainerLowest,
         prefixText: '₹  ',
-        prefixStyle: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+        prefixStyle: const TextStyle(
+          color: AppTheme.primary,
+          fontWeight: FontWeight.bold,
+        ),
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: AppTheme.outlineVariant),
@@ -581,7 +640,10 @@ class _PriceField extends StatelessWidget {
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(color: AppTheme.primary),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }

@@ -37,7 +37,6 @@ class TrackOrderScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Header Section
               Text(
                 'ATELIER LOGISTICS',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -52,9 +51,10 @@ class TrackOrderScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 48,
-                  foreground: Paint()..shader = const LinearGradient(
-                    colors: [AppTheme.primary, AppTheme.onSurface],
-                  ).createShader(const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0)),
+                  foreground: Paint()
+                    ..shader = const LinearGradient(
+                      colors: [AppTheme.primary, AppTheme.onSurface],
+                    ).createShader(const Rect.fromLTWH(0.0, 0.0, 300.0, 70.0)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -69,170 +69,225 @@ class TrackOrderScreen extends StatelessWidget {
               ),
               const SizedBox(height: 48),
 
-              // Form Card Section — capped width on desktop
               Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: isDesktop ? 680 : double.infinity),
+                  constraints: BoxConstraints(
+                    maxWidth: isDesktop ? 680 : double.infinity,
+                  ),
                   child: Container(
-                color: AppTheme.surfaceContainerLow,
-                padding: const EdgeInsets.all(40),
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'TRACKING NUMBER',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontSize: 10,
-                        letterSpacing: 3.0,
-                        color: AppTheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: 'ENTER TRACKING NUMBER',
-                        hintStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontSize: 12,
-                          letterSpacing: 2.0,
-                          color: AppTheme.outline.withValues(alpha: 0.4),
+                    color: AppTheme.surfaceContainerLow,
+                    padding: const EdgeInsets.all(40),
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'TRACKING NUMBER',
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                fontSize: 10,
+                                letterSpacing: 3.0,
+                                color: AppTheme.onSurfaceVariant,
+                              ),
                         ),
-                        filled: true,
-                        fillColor: AppTheme.surfaceContainerLowest,
-                        border: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppTheme.outlineVariant),
-                        ),
-                        focusedBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppTheme.primary),
-                        ),
-                      ),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        letterSpacing: 2.0,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        // API_HOOK: onPressed → GET /api/orders/track?trackingNumber=...&userId=...
-                        // Display returned status steps dynamically instead of static indicators
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                          backgroundColor: AppTheme.primary,
-                          foregroundColor: AppTheme.onPrimary,
-                        ),
-                        child: Text(
-                          'TRACK ORDER',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 4.0,
-                            color: AppTheme.onPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 48),
-                    
-                    // Support Links
-                    Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            'NEED ASSISTANCE?',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 10,
-                              letterSpacing: 2.0,
-                              color: AppTheme.onSurfaceVariant,
+                        const SizedBox(height: 16),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'ENTER TRACKING NUMBER',
+                            hintStyle: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  fontSize: 12,
+                                  letterSpacing: 2.0,
+                                  color: AppTheme.outline.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                ),
+                            filled: true,
+                            fillColor: AppTheme.surfaceContainerLowest,
+                            border: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: AppTheme.outlineVariant,
+                              ),
+                            ),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(color: AppTheme.primary),
                             ),
                           ),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: () {},
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(bottom: BorderSide(color: AppTheme.primary.withValues(alpha: 0.3))),
-                                  ),
-                                  child: Text(
-                                    'SUPPORT',
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: AppTheme.primary,
-                                      letterSpacing: 3.0,
-                                    ),
-                                  ),
-                                ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelSmall?.copyWith(letterSpacing: 2.0),
+                        ),
+                        const SizedBox(height: 40),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
                               ),
-                              TextButton(
-                                onPressed: () {},
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(bottom: BorderSide(color: AppTheme.primary.withValues(alpha: 0.3))),
+                              backgroundColor: AppTheme.primary,
+                              foregroundColor: AppTheme.onPrimary,
+                            ),
+                            child: Text(
+                              'TRACK ORDER',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 4.0,
+                                    color: AppTheme.onPrimary,
                                   ),
-                                  child: Text(
-                                    'WHATSAPP',
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: AppTheme.primary,
-                                      letterSpacing: 3.0,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 48),
+
+                        Center(
+                          child: Column(
+                            children: [
+                              Text(
+                                'NEED ASSISTANCE?',
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
+                                      fontSize: 10,
+                                      letterSpacing: 2.0,
+                                      color: AppTheme.onSurfaceVariant,
+                                    ),
+                              ),
+                              const SizedBox(height: 24),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {},
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                        horizontal: 16,
+                                      ),
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: AppTheme.primary.withValues(
+                                              alpha: 0.3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'SUPPORT',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(
+                                              color: AppTheme.primary,
+                                              letterSpacing: 3.0,
+                                            ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  TextButton(
+                                    onPressed: () {},
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                        horizontal: 16,
+                                      ),
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: AppTheme.primary.withValues(
+                                              alpha: 0.3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'WHATSAPP',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(
+                                              color: AppTheme.primary,
+                                              letterSpacing: 3.0,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          )
-                        ],
-                      ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-
+                  ),
                 ),
               ),
 
               const SizedBox(height: 64),
 
-              // Status Indicators — row on desktop, column on mobile
               if (isDesktop)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildStatusIndicator(context, icon: Icons.inventory_2, title: 'Dispatched', desc: 'Your piece has been meticulously inspected and prepared for travel.')),
-                    Expanded(child: _buildStatusIndicator(context, icon: Icons.local_shipping, title: 'In Transit', desc: 'Securely handled by our premium logistics partners globally.')),
-                    Expanded(child: _buildStatusIndicator(context, icon: Icons.handshake, title: 'Delivered', desc: 'The final reveal of your Sanwariya acquisition.')),
+                    Expanded(
+                      child: _buildStatusIndicator(
+                        context,
+                        icon: Icons.inventory_2,
+                        title: 'Dispatched',
+                        desc:
+                            'Your piece has been meticulously inspected and prepared for travel.',
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildStatusIndicator(
+                        context,
+                        icon: Icons.local_shipping,
+                        title: 'In Transit',
+                        desc:
+                            'Securely handled by our premium logistics partners globally.',
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildStatusIndicator(
+                        context,
+                        icon: Icons.handshake,
+                        title: 'Delivered',
+                        desc: 'The final reveal of your Sanwariya acquisition.',
+                      ),
+                    ),
                   ],
                 )
               else ...[
-              _buildStatusIndicator(
-                context,
-                icon: Icons.inventory_2,
-                title: 'Dispatched',
-                desc: 'Your piece has been meticulously inspected and prepared for travel.',
-              ),
-              const SizedBox(height: 32),
-              _buildStatusIndicator(
-                context,
-                icon: Icons.local_shipping,
-                title: 'In Transit',
-                desc: 'Securely handled by our premium logistics partners globally.',
-              ),
-              const SizedBox(height: 32),
-              _buildStatusIndicator(
-                context,
-                icon: Icons.handshake,
-                title: 'Delivered',
-                desc: 'The final reveal of your Sanwariya acquisition.',
-              ),
+                _buildStatusIndicator(
+                  context,
+                  icon: Icons.inventory_2,
+                  title: 'Dispatched',
+                  desc:
+                      'Your piece has been meticulously inspected and prepared for travel.',
+                ),
+                const SizedBox(height: 32),
+                _buildStatusIndicator(
+                  context,
+                  icon: Icons.local_shipping,
+                  title: 'In Transit',
+                  desc:
+                      'Securely handled by our premium logistics partners globally.',
+                ),
+                const SizedBox(height: 32),
+                _buildStatusIndicator(
+                  context,
+                  icon: Icons.handshake,
+                  title: 'Delivered',
+                  desc: 'The final reveal of your Sanwariya acquisition.',
+                ),
               ],
             ],
           ),
@@ -241,16 +296,21 @@ class TrackOrderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIndicator(BuildContext context, {required IconData icon, required String title, required String desc}) {
+  Widget _buildStatusIndicator(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String desc,
+  }) {
     return Column(
       children: [
         Icon(icon, color: AppTheme.primary, size: 40),
         const SizedBox(height: 16),
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Padding(
@@ -258,9 +318,9 @@ class TrackOrderScreen extends StatelessWidget {
           child: Text(
             desc,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.onSurfaceVariant,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppTheme.onSurfaceVariant),
           ),
         ),
       ],

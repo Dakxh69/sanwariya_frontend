@@ -3,11 +3,7 @@ class Category {
   final String name;
   final String imageUrl;
 
-  Category({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-  });
+  Category({required this.id, required this.name, required this.imageUrl});
 }
 
 class Product {
@@ -38,10 +34,7 @@ class CartItem {
   final Product product;
   int quantity;
 
-  CartItem({
-    required this.product,
-    this.quantity = 1,
-  });
+  CartItem({required this.product, this.quantity = 1});
 }
 
 class Order {
@@ -65,9 +58,5 @@ class UserProfile {
   final String name;
   final String email;
 
-  UserProfile({
-    required this.id,
-    required this.name,
-    required this.email,
-  });
+  UserProfile({required this.id, required this.name, required this.email});
 }
