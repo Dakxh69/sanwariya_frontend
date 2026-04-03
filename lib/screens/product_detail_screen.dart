@@ -500,21 +500,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 product,
                 quantity: _quantity,
               );
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${product.name} added to cart'),
-                  behavior: SnackBarBehavior.floating,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                  ),
-                  backgroundColor: AppTheme.primary,
-                  action: SnackBarAction(
-                    label: 'VIEW CART',
-                    textColor: AppTheme.onPrimary,
-                    onPressed: () => context.push('/cart'),
-                  ),
-                ),
-              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF2F2F2),

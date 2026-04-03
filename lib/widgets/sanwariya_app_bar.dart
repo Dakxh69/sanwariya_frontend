@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import '../services/mock_data_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import 'nav_menu.dart';
@@ -49,11 +51,7 @@ class SanwariyaAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.shopping_cart_outlined),
-          color: AppTheme.onSurface,
-          onPressed: () => _pushIfNeeded(context, '/cart'),
-        ),
+        _CartActionIcon(onPressed: () => _pushIfNeeded(context, '/cart')),
         IconButton(
           icon: const Icon(Icons.person_outline),
           color: AppTheme.onSurface,
@@ -67,6 +65,51 @@ class SanwariyaAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         const SizedBox(width: 4),
       ],
+    );
+  }
+}
+
+class _CartActionIcon extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _CartActionIcon({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<MockDataProvider, int>(
+      selector: (_, provider) => provider.cartCount,
+      builder: (context, count, _) {
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.shopping_cart_outlined),
+              color: AppTheme.onSurface,
+              onPressed: onPressed,
+            ),
+            if (count > 0)
+              Positioned(
+                right: 6,
+                top: 6,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(
+                      color: AppTheme.onPrimary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
