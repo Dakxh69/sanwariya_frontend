@@ -1,14 +1,14 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../services/mock_data_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/network_image.dart';
-import '../widgets/nav_menu.dart';
 import '../widgets/glass_bottom_nav.dart';
+import '../widgets/sanwariya_app_bar.dart';
 
 class ShopCollectionScreen extends StatefulWidget {
   const ShopCollectionScreen({super.key});
@@ -18,6 +18,29 @@ class ShopCollectionScreen extends StatefulWidget {
 }
 
 class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
+  static const IconData filterAltOutlined = IconData(
+    0xf068,
+    fontFamily: 'MaterialIcons',
+  );
+  static const _sortMenuItems = [
+    DropdownMenuItem<String>(
+      value: 'Newest First',
+      child: Text('Newest First'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'Price: Low to High',
+      child: Text('Price: Low to High'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'Price: High to Low',
+      child: Text('Price: High to Low'),
+    ),
+    DropdownMenuItem<String>(
+      value: 'Best Selling',
+      child: Text('Best Selling'),
+    ),
+  ];
+
   bool _showFilters = false;
   String _selectedCategory = 'All';
   String? _selectedPurity;
@@ -66,10 +89,12 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
       return catMatch && minMatch && maxMatch;
     }).toList();
 
-    if (_sortOrder == 'Price: Low to High')
+    if (_sortOrder == 'Price: Low to High') {
       result.sort((a, b) => a.price.compareTo(b.price));
-    if (_sortOrder == 'Price: High to Low')
+    }
+    if (_sortOrder == 'Price: High to Low') {
       result.sort((a, b) => b.price.compareTo(a.price));
+    }
 
     _cachedFiltered = result;
   }
@@ -98,35 +123,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
           ? const GlassBottomNav(currentPath: '/collection')
           : null,
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
-        title: Text(
-          'SANWARIYA',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppTheme.primary,
-            letterSpacing: 3.0,
-            fontFamily: 'Noto Serif',
-          ),
-        ),
-        actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_bag_outlined),
-                onPressed: () => context.push('/cart'),
-              ),
-
-              const _CartBadge(),
-            ],
-          ),
-          IconButton(icon: const Icon(Icons.person_outline), onPressed: () {}),
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => NavMenu.show(context, currentPath: '/collection'),
-          ),
-        ],
-      ),
+      appBar: const SanwariyaAppBar(currentPath: '/collection'),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -137,13 +134,19 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                 children: [
                   Text(
                     'Shop Collection',
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.playfairDisplay(
+                      textStyle: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            fontSize: 42,
+                            letterSpacing: 1.0,
+                          ),
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Discover our exquisite range of handcrafted jewelry',
+                    'Discover our exquisite range of handcrafted jewellery',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppTheme.onSurfaceVariant,
                     ),
@@ -165,19 +168,15 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                       ),
                     ),
                     icon: Icon(
-                      Icons.filter_list,
-                      color: _showFilters
-                          ? AppTheme.onPrimary
-                          : AppTheme.primary,
+                      filterAltOutlined,
+                      color: _showFilters ? Colors.black : Colors.white,
                     ),
                     label: Text(
-                      _showFilters ? 'HIDE FILTERS' : 'SHOW FILTERS',
+                      _showFilters ? 'Hide Filters' : 'Show Filters',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: _showFilters
-                            ? AppTheme.onPrimary
-                            : AppTheme.primary,
+                        color: _showFilters ? Colors.black : Colors.white,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 2.0,
                       ),
                     ),
                   ),
@@ -291,6 +290,8 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                         '${products.length} products found',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: AppTheme.onSurface,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Container(
@@ -308,21 +309,12 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                             ),
                             dropdownColor: AppTheme.surfaceContainerHigh,
                             style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(color: AppTheme.onSurface),
-                            items:
-                                [
-                                      'Newest First',
-                                      'Price: Low to High',
-                                      'Price: High to Low',
-                                      'Best Selling',
-                                    ]
-                                    .map(
-                                      (s) => DropdownMenuItem(
-                                        value: s,
-                                        child: Text(s),
-                                      ),
-                                    )
-                                    .toList(),
+                                ?.copyWith(
+                                  color: AppTheme.onSurface,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            items: _sortMenuItems,
                             onChanged: (v) => setState(() {
                               _sortOrder = v ?? _sortOrder;
                               _updateFilter();
@@ -339,17 +331,18 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
 
           SliverPadding(
             padding: hPad.copyWith(top: 16, bottom: 16),
-            sliver: SliverGrid(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: Responsive.gridCrossAxisCount(context),
-                childAspectRatio: isDesktop ? 0.65 : 0.55,
-                mainAxisSpacing: 32,
-                crossAxisSpacing: isDesktop ? 24 : 16,
-              ),
+            sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _ProductCardItem(
-                  key: ValueKey(products[index].id),
-                  product: products[index],
+                (context, index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: SizedBox(
+                    height: isDesktop ? 650 : 560,
+                    child: _ProductCardItem(
+                      key: ValueKey(products[index].id),
+                      product: products[index],
+                      metaLabel: _selectedPurity ?? 'N/A',
+                    ),
+                  ),
                 ),
                 childCount: products.length,
               ),
@@ -365,192 +358,144 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
 
 class _ProductCardItem extends StatelessWidget {
   final Product product;
+  final String metaLabel;
 
-  const _ProductCardItem({super.key, required this.product});
+  const _ProductCardItem({
+    super.key,
+    required this.product,
+    required this.metaLabel,
+  });
 
-  static const _newBadgeDecoration = BoxDecoration(
-    gradient: LinearGradient(
-      colors: [AppTheme.primary, AppTheme.primaryContainer],
-    ),
+  static const _discountBadgeDecoration = BoxDecoration(
+    color: AppTheme.primary,
   );
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final mrp = '₹${(product.price * 1.2).toStringAsFixed(0)}';
+    const discountPercent = 10;
+    final mrp =
+        '₹${(product.price / (1 - (discountPercent / 100))).toStringAsFixed(0)}';
     final price = '₹${product.price.toStringAsFixed(0)}';
     final category = product.category.toUpperCase();
 
     return GestureDetector(
       onTap: () => context.push('/product/${product.id}'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Container(
-                  color: AppTheme.surfaceContainer,
-                  child: AestheticNetworkImage(
-                    imageUrl: product.imageUrl,
-                    fit: BoxFit.cover,
-                    borderRadius: BorderRadius.zero,
-                  ),
-                ),
-                Positioned(
-                  top: 16,
-                  left: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceContainerLow,
+          border: Border.all(
+            color: AppTheme.outlineVariant.withValues(alpha: 0.35),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(
+                    color: AppTheme.surfaceContainerLowest,
+                    child: AestheticNetworkImage(
+                      imageUrl: product.imageUrl,
+                      fit: BoxFit.cover,
+                      borderRadius: BorderRadius.zero,
                     ),
-                    decoration: _newBadgeDecoration,
-                    child: Text(
-                      'NEW',
-                      style: textTheme.labelSmall?.copyWith(
-                        color: AppTheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2.0,
-                        fontSize: 10,
+                  ),
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
                       ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 16,
-                  right: 16,
-
-                  child: RepaintBoundary(
-                    child: ClipRect(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppTheme.surface.withValues(alpha: 0.8),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.add_shopping_cart,
-                              color: AppTheme.primary,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              context.read<MockDataProvider>().addToCart(
-                                product,
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Added to cart')),
-                              );
-                            },
-                          ),
+                      decoration: _discountBadgeDecoration,
+                      child: Text(
+                        '$discountPercent% OFF',
+                        style: textTheme.labelSmall?.copyWith(
+                          color: AppTheme.onPrimary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                category,
-                style: textTheme.labelSmall?.copyWith(
-                  color: AppTheme.primary,
-                  letterSpacing: 4.0,
-                  fontSize: 10,
+            const SizedBox(height: 20),
+            Text(
+              category,
+              style: GoogleFonts.inter(
+                textStyle: textTheme.labelSmall,
+                color: AppTheme.primary,
+                letterSpacing: 1,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              product.name,
+              style: GoogleFonts.playfairDisplay(
+                textStyle: textTheme.headlineSmall?.copyWith(
+                  color: AppTheme.onSurface,
+                  height: 1.15,
                 ),
+                fontWeight: FontWeight.w700,
               ),
-              const _InStockBadge(),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            product.name,
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Text(
-                price,
-                style: textTheme.titleMedium?.copyWith(color: AppTheme.primary),
-              ),
-              const SizedBox(width: 8),
-              if (product.price > 1000)
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Text(
+                  price,
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
                 Text(
                   mrp,
-                  style: textTheme.labelMedium?.copyWith(
+                  style: textTheme.titleMedium?.copyWith(
                     color: AppTheme.outline,
+                    fontSize: 14,
                     decoration: TextDecoration.lineThrough,
                   ),
                 ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InStockBadge extends StatelessWidget {
-  const _InStockBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 4,
-          decoration: const BoxDecoration(
-            color: Colors.green,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          'In Stock',
-          style: Theme.of(
-            context,
-          ).textTheme.labelSmall?.copyWith(color: Colors.green, fontSize: 10),
-        ),
-      ],
-    );
-  }
-}
-
-class _CartBadge extends StatelessWidget {
-  const _CartBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final count = context.select<MockDataProvider, int>((p) => p.cartCount);
-    if (count == 0) return const SizedBox.shrink();
-    return Positioned(
-      right: 8,
-      top: 8,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(
-          color: AppTheme.primary,
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          '$count',
-          style: const TextStyle(
-            color: AppTheme.onPrimary,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-          ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  metaLabel,
+                  style: textTheme.titleMedium?.copyWith(
+                    color: AppTheme.onSurface,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  "In Stock",
+                  style: GoogleFonts.inter(
+                    textStyle: textTheme.labelSmall,
+                    color: const Color(0xFF32F58A),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

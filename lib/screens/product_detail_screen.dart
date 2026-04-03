@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../services/mock_data_provider.dart';
@@ -8,6 +9,7 @@ import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/network_image.dart';
 import '../widgets/glass_bottom_nav.dart';
+import '../widgets/sanwariya_app_bar.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -33,7 +35,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     if (product == null) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: const SanwariyaAppBar(currentPath: '/collection'),
         body: const Center(child: Text('Product not found.')),
       );
     }
@@ -44,70 +46,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       'https://lh3.googleusercontent.com/aida-public/AB6AXuBSgBQRY-3iFs8glaeIZMFJHGk9deimfY_Iy1dwYZbJFtz11Gzr73R9oK8OR9qo5Tf-MovJZQ9lkQvC8PGpoEsxRViOnBlIarkJO8QIhBZWT8zkaZ2w5sINltCsq78AThjjpxvEQrhK6p_4e2MrR7FZaky-nbL_EgzotD5rsVgl3DG3RlUn87DH2VrdZZn_6i4Y8EfG8nNBdJsNlkusq3u8G-PXcM5dpsIuJRu3FBnQVjKDaPcWJ2Az_iHfAVl-mctC-PRg7VMirWh0',
     ];
 
+    final relatedProducts = context.select<MockDataProvider, List<Product>>(
+      (provider) => provider.products
+          .where(
+            (p) => p.categoryId == product.categoryId && p.id != product.id,
+          )
+          .toList(),
+    );
+
     return Scaffold(
       bottomNavigationBar: Responsive.showBottomNav(context)
           ? const GlassBottomNav(currentPath: '/detail')
           : null,
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
-        title: Column(
-          children: [
-            Text(
-              'Sanwariya',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppTheme.primary,
-                letterSpacing: 1.5,
-                fontFamily: 'Noto Serif',
-              ),
-            ),
-            Text(
-              'Imitation',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: AppTheme.onSurface,
-                fontFamily: 'Noto Serif',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_bag_outlined),
-                onPressed: () => context.push('/cart'),
-              ),
-              Consumer<MockDataProvider>(
-                builder: (context, provider, child) {
-                  if (provider.cartCount == 0) return const SizedBox.shrink();
-                  return Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        provider.cartCount.toString(),
-                        style: const TextStyle(
-                          color: AppTheme.onPrimary,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          IconButton(icon: const Icon(Icons.person_outline), onPressed: () {}),
-          const SizedBox(width: 8),
-        ],
-      ),
+      appBar: const SanwariyaAppBar(currentPath: '/collection'),
       body: Responsive.isDesktop(context)
           ? SingleChildScrollView(
               child: Padding(
@@ -232,7 +184,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                     Expanded(
                       flex: 4,
-                      child: _buildProductInfo(context, product),
+                      child: _buildProductInfo(
+                        context,
+                        product,
+                        relatedProducts,
+                      ),
                     ),
                   ],
                 ),
@@ -348,14 +304,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       },
                     ),
                   ),
-                  _buildProductInfo(context, product),
+                  _buildProductInfo(context, product, relatedProducts),
                 ],
               ),
             ),
     );
   }
 
-  Widget _buildProductInfo(BuildContext context, Product product) {
+  Widget _buildProductInfo(
+    BuildContext context,
+    Product product,
+    List<Product> relatedProducts,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -392,17 +352,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             children: [
               Text(
                 '₹${product.price.toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.inter(
+                  textStyle: Theme.of(context).textTheme.headlineMedium
+                      ?.copyWith(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
               const SizedBox(width: 16),
               Text(
                 '₹${(product.price * 1.1).toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.outlineVariant.withValues(alpha: 0.6),
-                  decoration: TextDecoration.lineThrough,
+                style: GoogleFonts.inter(
+                  textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: const Color.fromARGB(
+                      255,
+                      255,
+                      255,
+                      255,
+                    ).withValues(alpha: 0.6),
+                    decoration: TextDecoration.lineThrough,
+                  ),
                 ),
               ),
             ],
@@ -410,9 +380,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(height: 24),
           Text(
             product.description,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppTheme.onSurfaceVariant,
-              height: 1.6,
+            style: GoogleFonts.inter(
+              textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: const Color.fromARGB(255, 255, 255, 255),
+                height: 1.6,
+              ),
             ),
           ),
           const SizedBox(height: 32),
@@ -421,7 +393,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             decoration: BoxDecoration(
               color: AppTheme.surfaceContainerLowest,
               border: Border.all(
-                color: AppTheme.outlineVariant.withValues(alpha: 0.1),
+                color: AppTheme.outlineVariant.withValues(alpha: 0.12),
+                width: 0.6,
               ),
             ),
             child: Column(
@@ -432,22 +405,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 const SizedBox(height: 16),
                 _buildSpecRow('SKU:', 'AK-001'),
                 const SizedBox(height: 16),
-                const Divider(color: AppTheme.outlineVariant),
-                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Availability:',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppTheme.onSurface.withValues(alpha: 0.7),
+                      style: GoogleFonts.inter(
+                        textStyle: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                            ),
                       ),
                     ),
                     Text(
                       '9 in stock',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
+                      style: GoogleFonts.inter(
+                        textStyle: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                     ),
                   ],
@@ -458,12 +435,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(height: 32),
           Row(
             children: [
-              Text('Quantity:', style: Theme.of(context).textTheme.labelMedium),
+              Text(
+                'Quantity:',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(width: 24),
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: AppTheme.outlineVariant.withValues(alpha: 0.3),
+                    color: const Color.fromARGB(
+                      255,
+                      255,
+                      255,
+                      255,
+                    ).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -528,9 +517,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
+              backgroundColor: const Color(0xFFF2F2F2),
               foregroundColor: Colors.black,
-              minimumSize: const Size.fromHeight(64),
+              elevation: 0,
+              minimumSize: const Size.fromHeight(62),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.zero,
               ),
@@ -538,14 +528,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.shopping_cart),
-                const SizedBox(width: 8),
+                const Icon(Icons.shopping_cart_outlined, size: 24),
+                const SizedBox(width: 10),
                 Text(
-                  'ADD TO CART',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
+                  'Add to Cart',
+                  style: GoogleFonts.inter(
+                    textStyle: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ),
               ],
@@ -561,8 +553,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               context.push('/cart');
             },
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppTheme.primary),
-              minimumSize: const Size.fromHeight(64),
+              backgroundColor: const Color(0xFF2E270F),
+              side: const BorderSide(color: AppTheme.primary, width: 1),
+              minimumSize: const Size.fromHeight(62),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.zero,
               ),
@@ -570,14 +563,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.shopping_cart, color: AppTheme.primary),
-                const SizedBox(width: 8),
+                const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: AppTheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 10),
                 Text(
-                  'BUY NOW',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2.0,
+                  'Buy Now',
+                  style: GoogleFonts.inter(
+                    textStyle: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ),
               ],
@@ -590,9 +589,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: AppTheme.outlineVariant.withValues(alpha: 0.3),
-                    ),
+                    backgroundColor: AppTheme.surfaceContainerLowest,
+                    side: const BorderSide(color: AppTheme.primary, width: 1),
                     minimumSize: const Size.fromHeight(56),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
@@ -604,8 +602,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   label: Text(
                     'Wishlist',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: AppTheme.onSurface,
+                    style: GoogleFonts.inter(
+                      textStyle: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(
+                            color: AppTheme.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ),
                 ),
@@ -615,9 +617,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: AppTheme.outlineVariant.withValues(alpha: 0.3),
-                    ),
+                    backgroundColor: AppTheme.surfaceContainerLowest,
+                    side: const BorderSide(color: AppTheme.primary, width: 1),
                     minimumSize: const Size.fromHeight(56),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
@@ -629,14 +630,59 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   label: Text(
                     'Share',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: AppTheme.onSurface,
+                    style: GoogleFonts.inter(
+                      textStyle: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(
+                            color: AppTheme.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ),
                 ),
               ),
             ],
           ),
+          if (relatedProducts.isNotEmpty) ...[
+            const SizedBox(height: 48),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                children: [
+                  Text(
+                    'You May Also Like',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.playfairDisplay(
+                      textStyle: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color: AppTheme.onSurface,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Similar products from ${product.category}',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      textStyle: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(color: AppTheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            ListView.separated(
+              itemCount: relatedProducts.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              separatorBuilder: (_, index) => const SizedBox(height: 14),
+              itemBuilder: (context, index) {
+                final related = relatedProducts[index];
+                return _RelatedProductListItem(product: related);
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -648,18 +694,163 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: AppTheme.onSurface.withValues(alpha: 0.7),
+          style: GoogleFonts.inter(
+            textStyle: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: Colors.white),
           ),
         ),
         Text(
           value,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: AppTheme.onSurface,
-            fontWeight: FontWeight.bold,
+          style: GoogleFonts.inter(
+            textStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _RelatedProductListItem extends StatelessWidget {
+  final Product product;
+
+  const _RelatedProductListItem({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    const discountPercent = 10;
+    final mrp =
+        '₹${(product.price / (1 - (discountPercent / 100))).toStringAsFixed(0)}';
+    final price = '₹${product.price.toStringAsFixed(0)}';
+    final category = product.category.toUpperCase();
+    final metaLabel = product.isBestSeller
+        ? 'Best Seller'
+        : (product.isNewArrival ? 'New Arrival' : 'Handcrafted');
+
+    return GestureDetector(
+      onTap: () => context.push('/product/${product.id}'),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceContainerLow,
+          border: Border.all(
+            color: AppTheme.outlineVariant.withValues(alpha: 0.35),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: Responsive.isDesktop(context) ? 16 / 8 : 4 / 3,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(
+                    color: AppTheme.surfaceContainerLowest,
+                    child: AestheticNetworkImage(
+                      imageUrl: product.imageUrl,
+                      fit: BoxFit.cover,
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      color: AppTheme.primary,
+                      child: Text(
+                        '$discountPercent% OFF',
+                        style: textTheme.labelSmall?.copyWith(
+                          color: AppTheme.onPrimary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              category,
+              style: GoogleFonts.inter(
+                textStyle: textTheme.labelSmall,
+                color: AppTheme.primary,
+                letterSpacing: 1,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              product.name,
+              style: GoogleFonts.playfairDisplay(
+                textStyle: textTheme.headlineSmall?.copyWith(
+                  color: AppTheme.onSurface,
+                  height: 1.15,
+                ),
+                fontWeight: FontWeight.w700,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Text(
+                  price,
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  mrp,
+                  style: textTheme.titleMedium?.copyWith(
+                    color: AppTheme.outline,
+                    fontSize: 14,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  metaLabel,
+                  style: textTheme.titleMedium?.copyWith(
+                    color: AppTheme.onSurface,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'In Stock',
+                  style: GoogleFonts.inter(
+                    textStyle: textTheme.labelSmall,
+                    color: const Color(0xFF32F58A),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/glass_bottom_nav.dart';
+import '../widgets/sanwariya_app_bar.dart';
 
 class ContactUsScreen extends StatelessWidget {
   const ContactUsScreen({super.key});
@@ -18,20 +20,7 @@ class ContactUsScreen extends StatelessWidget {
           ? const GlassBottomNav(currentPath: '/contact')
           : null,
       backgroundColor: AppTheme.surface,
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.go('/')),
-        title: Text(
-          'SANWARIYA',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: AppTheme.primary,
-            letterSpacing: 4.0,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      appBar: const SanwariyaAppBar(currentPath: '/contact'),
       body: SingleChildScrollView(
         child: Column(
           children: [

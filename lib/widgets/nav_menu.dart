@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../services/mock_data_provider.dart';
 import '../theme/app_theme.dart';
@@ -44,13 +45,11 @@ class NavMenu extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Sanwariya\nImitation',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(
-                            color: AppTheme.primary,
-                            fontFamily: 'Noto Serif',
-                            fontWeight: FontWeight.bold,
-                            height: 1.2,
-                          ),
+                      style: GoogleFonts.playfairDisplay(
+                        textStyle: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(color: AppTheme.primary, height: 1.2),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   Row(
@@ -61,7 +60,7 @@ class NavMenu extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: const Icon(
-                              Icons.shopping_bag_outlined,
+                              Icons.shopping_cart_outlined,
                               color: AppTheme.onSurface,
                             ),
                             onPressed: () {

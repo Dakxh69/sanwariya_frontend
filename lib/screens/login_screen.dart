@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../widgets/sanwariya_app_bar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,10 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _getErrorMessage(String value) {
     if (value.isEmpty) return 'Phone number is required';
     if (value.length < 10) return 'Enter a 10-digit mobile number';
-    if (!RegExp(r'^[6-9]').hasMatch(value))
+    if (!RegExp(r'^[6-9]').hasMatch(value)) {
       return 'Indian mobile numbers start with 6, 7, 8 or 9';
-    if (!_isValidPhone(value))
+    }
+    if (!_isValidPhone(value)) {
       return 'Enter a valid 10-digit Indian mobile number';
+    }
     return null;
   }
 
@@ -65,20 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.surface,
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.go('/')),
-        title: Text(
-          'SANWARIYA',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: AppTheme.primary,
-            letterSpacing: 4.0,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      appBar: const SanwariyaAppBar(currentPath: '/login'),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {

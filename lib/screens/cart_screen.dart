@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../services/mock_data_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/network_image.dart';
-import '../widgets/nav_menu.dart';
 import '../widgets/glass_bottom_nav.dart';
+import '../widgets/sanwariya_app_bar.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cartItems = context.watch<MockDataProvider>().cartItems;
-    final subtotal = cartItems.fold(
-      0.0,
-      (sum, item) => sum + (item.product.price * item.quantity),
-    );
-    final tax = subtotal * 0.18;
-    final total = subtotal + tax;
-
     final isDesktop = Responsive.isDesktop(context);
     final hPad = Responsive.horizontalPadding(context);
 
@@ -30,48 +23,161 @@ class CartScreen extends StatelessWidget {
           ? const GlassBottomNav(currentPath: '/cart')
           : null,
       backgroundColor: AppTheme.surface,
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.go('/')),
-        title: Text(
-          'SANWARIYA',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppTheme.primary,
-            letterSpacing: 3.0,
-            fontFamily: 'Noto Serif',
+      appBar: const SanwariyaAppBar(currentPath: '/cart'),
+      body: Consumer<MockDataProvider>(
+        builder: (context, provider, _) {
+          final cartItems = provider.cartItems;
+          if (cartItems.isEmpty) {
+            return _buildEmptyState(context);
+          }
+
+          final subtotal = cartItems.fold(
+            0.0,
+            (sum, item) => sum + (item.product.price * item.quantity),
+          );
+          final shipping = subtotal >= 50000 ? 0.0 : 500.0;
+          final total = subtotal + shipping;
+
+          return SingleChildScrollView(
+            padding: hPad.copyWith(top: 32, bottom: 32),
+            child: isDesktop
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 6,
+                        child: RepaintBoundary(
+                          child: _buildCartList(context, cartItems),
+                        ),
+                      ),
+                      const SizedBox(width: 48),
+
+                      SizedBox(
+                        width: 380,
+                        child: RepaintBoundary(
+                          child: _buildOrderSummary(
+                            context,
+                            subtotal,
+                            shipping,
+                            total,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RepaintBoundary(
+                        child: _buildCartList(context, cartItems),
+                      ),
+                      const SizedBox(height: 64),
+                      RepaintBoundary(
+                        child: _buildOrderSummary(
+                          context,
+                          subtotal,
+                          shipping,
+                          total,
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final contentPadding = Responsive.value<EdgeInsets>(
+      context,
+      mobile: const EdgeInsets.symmetric(horizontal: 24),
+      tablet: const EdgeInsets.symmetric(horizontal: 48),
+      desktop: const EdgeInsets.symmetric(horizontal: 120),
+    );
+
+    final titleSize = Responsive.value<double>(
+      context,
+      mobile: 56,
+      tablet: 62,
+      desktop: 66,
+    );
+
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF1F180E), AppTheme.surface, AppTheme.surface],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          stops: [0.0, 0.12, 1.0],
+        ),
+      ),
+      child: Center(
+        child: Padding(
+          padding: contentPadding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.shopping_bag_outlined,
+                color: AppTheme.primary,
+                size: 84,
+              ),
+              const SizedBox(height: 28),
+              Text(
+                'Your Cart is Empty',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  textStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    fontSize: titleSize,
+                    color: AppTheme.onSurface,
+                    height: 1,
+                  ),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 18),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Text(
+                  "Looks like you haven't added any items to your cart yet.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppTheme.onSurface,
+                      height: 1.4,
+                    ),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 34),
+              SizedBox(
+                width: 190,
+                child: ElevatedButton(
+                  onPressed: () => context.go('/collection'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  child: Text(
+                    'Start Shopping',
+                    style: GoogleFonts.inter(
+                      textStyle: Theme.of(context).textTheme.titleMedium,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        actions: [
-          IconButton(icon: const Icon(Icons.person_outline), onPressed: () {}),
-          if (!isDesktop)
-            IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => NavMenu.show(context, currentPath: '/cart'),
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: hPad.copyWith(top: 32, bottom: 32),
-        child: isDesktop
-            ? Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(flex: 6, child: _buildCartList(context, cartItems)),
-                  const SizedBox(width: 48),
-
-                  SizedBox(
-                    width: 380,
-                    child: _buildOrderSummary(context, subtotal, tax, total),
-                  ),
-                ],
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCartList(context, cartItems),
-                  const SizedBox(height: 64),
-                  _buildOrderSummary(context, subtotal, tax, total),
-                ],
-              ),
       ),
     );
   }
@@ -82,51 +188,19 @@ class CartScreen extends StatelessWidget {
       children: [
         Text(
           'Shopping Cart',
-          style: Theme.of(
-            context,
-          ).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+          style: GoogleFonts.playfairDisplay(
+            textStyle: Theme.of(context).textTheme.displaySmall,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: 48),
-        if (cartItems.isEmpty)
-          const Center(child: Text('Your Cart is Empty.'))
-        else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: cartItems.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 32),
-            itemBuilder: (context, index) =>
-                _buildCartItem(context, cartItems[index]),
-          ),
-        const SizedBox(height: 64),
-        Row(
-          children: [
-            const Icon(Icons.verified, color: AppTheme.primary, size: 20),
-            const SizedBox(width: 16),
-            Text(
-              'LIFETIME AUTHENTICITY GUARANTEE',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppTheme.outlineVariant,
-                letterSpacing: 2.0,
-                fontSize: 10,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            const Icon(Icons.local_shipping, color: AppTheme.primary, size: 20),
-            const SizedBox(width: 16),
-            Text(
-              'INSURED WHITE-GLOVE DELIVERY',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppTheme.outlineVariant,
-                letterSpacing: 2.0,
-                fontSize: 10,
-              ),
-            ),
-          ],
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: cartItems.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 32),
+          itemBuilder: (context, index) =>
+              RepaintBoundary(child: _buildCartItem(context, cartItems[index])),
         ),
       ],
     );
@@ -135,164 +209,273 @@ class CartScreen extends StatelessWidget {
   Widget _buildOrderSummary(
     BuildContext context,
     double subtotal,
-    double tax,
+    double shipping,
     double total,
   ) {
     return Container(
-      color: AppTheme.surfaceContainer,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Order Summary',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                _buildSummaryRow(
-                  context,
-                  'Subtotal',
-                  '₹${subtotal.toStringAsFixed(0)}',
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'SHIPPING',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppTheme.outline,
-                        letterSpacing: 2.0,
-                      ),
-                    ),
-                    Text(
-                      'FREE',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppTheme.primary,
-                        letterSpacing: 2.0,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildSummaryRow(
-                  context,
-                  'Estimated Tax',
-                  '₹${tax.toStringAsFixed(0)}',
-                ),
-              ],
+          Text(
+            'Order Summary',
+            style: GoogleFonts.playfairDisplay(
+              textStyle: Theme.of(context).textTheme.headlineMedium,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.onSurface,
             ),
           ),
+          const SizedBox(height: 28),
+          _buildSummaryRow(
+            context,
+            'Subtotal',
+            '₹${subtotal.toStringAsFixed(0)}',
+            valueColor: AppTheme.onSurface,
+          ),
+          const SizedBox(height: 20),
+          _buildSummaryRow(
+            context,
+            'Shipping',
+            shipping == 0 ? 'FREE' : '₹${shipping.toStringAsFixed(0)}',
+            valueColor: AppTheme.onSurface,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Free shipping on orders above ₹50,000',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppTheme.primary),
+          ),
+          const SizedBox(height: 18),
+          Divider(color: AppTheme.outlineVariant.withValues(alpha: 0.8)),
+          const SizedBox(height: 20),
+          _buildSummaryRow(
+            context,
+            'Total',
+            '₹${total.toStringAsFixed(0)}',
+            titleStyle: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            valueStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: AppTheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 28),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+              ),
+              child: Text(
+                'Proceed to Checkout',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () => context.go('/'),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppTheme.primary),
+                minimumSize: const Size.fromHeight(56),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+              ),
+              child: Text(
+                'Continue Shopping',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: AppTheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(
+    BuildContext context,
+    String title,
+    String value, {
+    TextStyle? titleStyle,
+    TextStyle? valueStyle,
+    Color? valueColor,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.inter(
+            textStyle:
+                titleStyle ??
+                Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppTheme.onSurface,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 16,
+                ),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            textStyle:
+                valueStyle ??
+                Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: valueColor ?? AppTheme.onSurface,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 16,
+                ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCartItem(BuildContext context, CartItem item) {
+    final isDesktop = Responsive.isDesktop(context);
+    final imageSize = isDesktop ? 128.0 : 104.0;
+
+    return Container(
+      padding: EdgeInsets.all(isDesktop ? 20 : 14),
+      decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-            color: AppTheme.surfaceContainerHigh,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            width: imageSize,
+            height: imageSize,
+            color: AppTheme.surfaceContainer,
+            child: AestheticNetworkImage(
+              imageUrl: item.product.imageUrl,
+              fit: BoxFit.cover,
+              borderRadius: BorderRadius.zero,
+            ),
+          ),
+          SizedBox(width: isDesktop ? 24 : 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Total',
+                  item.product.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '22K • 15g',
                   style: Theme.of(
                     context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ).textTheme.labelMedium?.copyWith(color: AppTheme.onSurface),
                 ),
+                const SizedBox(height: 4),
                 Text(
-                  '₹${total.toStringAsFixed(0)}',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  '₹${item.product.price.toStringAsFixed(0)}',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppTheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppTheme.primary, AppTheme.primaryContainer],
-                    ),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
+                SizedBox(height: isDesktop ? 16 : 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceContainerLow,
+                        border: Border.all(color: AppTheme.outlineVariant),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildQtyActionButton(
+                            icon: Icons.remove,
+                            onPressed: () {
+                              context.read<MockDataProvider>().updateQuantity(
+                                item.product.id,
+                                -1,
+                              );
+                            },
+                          ),
+                          Container(
+                            width: isDesktop ? 52 : 44,
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                left: BorderSide(
+                                  color: AppTheme.outlineVariant,
+                                ),
+                                right: BorderSide(
+                                  color: AppTheme.outlineVariant,
+                                ),
+                              ),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: isDesktop ? 10 : 8,
+                            ),
+                            child: Text(
+                              item.quantity.toString(),
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          _buildQtyActionButton(
+                            icon: Icons.add,
+                            onPressed: () {
+                              context.read<MockDataProvider>().updateQuantity(
+                                item.product.id,
+                                1,
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    child: Text(
-                      'PROCEED TO CHECKOUT',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppTheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2.0,
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        context.read<MockDataProvider>().removeFromCart(
+                          item.product.id,
+                        );
+                      },
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.redAccent,
+                        size: 20,
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                OutlinedButton(
-                  onPressed: () => context.go('/'),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppTheme.primary),
-                    minimumSize: const Size.fromHeight(56),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                  ),
-                  child: Text(
-                    'CONTINUE SHOPPING',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppTheme.primary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                const Divider(color: AppTheme.outlineVariant),
-                const SizedBox(height: 24),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'PROMO CODE',
-                    hintStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppTheme.outline.withValues(alpha: 0.4),
-                      letterSpacing: 2.0,
-                    ),
-                    filled: true,
-                    fillColor: AppTheme.surfaceContainerLowest,
-                    suffixIcon: TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'APPLY',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: AppTheme.outline),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: AppTheme.primary),
-                    ),
-                  ),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelSmall?.copyWith(letterSpacing: 2.0),
+                  ],
                 ),
               ],
             ),
@@ -302,148 +485,18 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryRow(BuildContext context, String title, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: AppTheme.outline,
-            letterSpacing: 2.0,
-          ),
-        ),
-        Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCartItem(BuildContext context, CartItem item) {
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 140,
-              height: 140,
-              color: AppTheme.surfaceContainer,
-              child: AestheticNetworkImage(
-                imageUrl: item.product.imageUrl,
-                fit: BoxFit.cover,
-                borderRadius: BorderRadius.zero,
-              ),
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.product.name,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '22K • 15G',
-                              style: Theme.of(context).textTheme.labelSmall
-                                  ?.copyWith(
-                                    color: AppTheme.outline,
-                                    letterSpacing: 2.0,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        '₹${item.product.price.toStringAsFixed(0)}',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: AppTheme.surfaceContainerLowest,
-                          border: Border(
-                            bottom: BorderSide(color: AppTheme.outlineVariant),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                context.read<MockDataProvider>().updateQuantity(
-                                  item.product.id,
-                                  -1,
-                                );
-                              },
-                              icon: const Icon(Icons.remove, size: 16),
-                            ),
-                            Text(
-                              item.quantity.toString().padLeft(2, '0'),
-                              style: Theme.of(context).textTheme.labelSmall,
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                context.read<MockDataProvider>().updateQuantity(
-                                  item.product.id,
-                                  1,
-                                );
-                              },
-                              icon: const Icon(Icons.add, size: 16),
-                            ),
-                          ],
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {
-                          context.read<MockDataProvider>().removeFromCart(
-                            item.product.id,
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          size: 16,
-                          color: AppTheme.outline,
-                        ),
-                        label: Text(
-                          'REMOVE',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                color: AppTheme.outline,
-                                letterSpacing: 2.0,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
+  Widget _buildQtyActionButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: 42,
+      height: 42,
+      child: IconButton(
+        onPressed: onPressed,
+        splashRadius: 18,
+        icon: Icon(icon, size: 18, color: AppTheme.onSurface),
+      ),
     );
   }
 }

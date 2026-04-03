@@ -82,6 +82,71 @@ class MockDataProvider extends ChangeNotifier {
       category: 'Bracelets',
       isBestSeller: true,
     ),
+    Product(
+      id: 'p5',
+      name: 'Royal Crest Ring',
+      description: 'Classic dome ring with engraved royal motifs.',
+      price: 1380.00,
+      imageUrl:
+          'https://images.unsplash.com/photo-1605100804763-247f66156cee?auto=format&fit=crop&q=80&w=600',
+      categoryId: 'c1',
+      category: 'Rings',
+      isBestSeller: true,
+    ),
+    Product(
+      id: 'p6',
+      name: 'Lotus Halo Ring',
+      description: 'Floral halo silhouette with radiant stone detailing.',
+      price: 1190.00,
+      imageUrl:
+          'https://images.unsplash.com/photo-1605100804763-247f66156cee?auto=format&fit=crop&q=80&w=600',
+      categoryId: 'c1',
+      category: 'Rings',
+      isNewArrival: true,
+    ),
+    Product(
+      id: 'p7',
+      name: 'Moonlit Layer Necklace',
+      description: 'Layered necklace set crafted for festive styling.',
+      price: 980.00,
+      imageUrl:
+          'https://images.unsplash.com/photo-1599643478524-fb66f7f6eed9?auto=format&fit=crop&q=80&w=600',
+      categoryId: 'c2',
+      category: 'Necklaces',
+      isNewArrival: true,
+    ),
+    Product(
+      id: 'p8',
+      name: 'Antique Coin Necklace',
+      description: 'Statement necklace inspired by heritage coin jewelry.',
+      price: 1125.00,
+      imageUrl:
+          'https://images.unsplash.com/photo-1599643478524-fb66f7f6eed9?auto=format&fit=crop&q=80&w=600',
+      categoryId: 'c2',
+      category: 'Necklaces',
+    ),
+    Product(
+      id: 'p9',
+      name: 'Sunburst Drop Earrings',
+      description: 'Lightweight drops with intricate radial pattern work.',
+      price: 690.00,
+      imageUrl:
+          'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=600',
+      categoryId: 'c3',
+      category: 'Earrings',
+      isBestSeller: true,
+    ),
+    Product(
+      id: 'p10',
+      name: 'Temple Filigree Bangle',
+      description: 'Fine filigree bangle with temple-inspired artistry.',
+      price: 520.00,
+      imageUrl:
+          'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600',
+      categoryId: 'c4',
+      category: 'Bracelets',
+      isNewArrival: true,
+    ),
   ];
   List<Product> get products => _products;
 

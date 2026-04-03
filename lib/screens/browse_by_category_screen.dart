@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/glass_bottom_nav.dart';
-import '../widgets/nav_menu.dart';
 import '../widgets/network_image.dart';
+import '../widgets/sanwariya_app_bar.dart';
 
 class BrowseByCategoryScreen extends StatelessWidget {
   const BrowseByCategoryScreen({super.key});
@@ -20,31 +21,7 @@ class BrowseByCategoryScreen extends StatelessWidget {
           ? const GlassBottomNav(currentPath: '/browse')
           : null,
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
-        title: Text(
-          'SANWARIYA',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppTheme.primary,
-            letterSpacing: 3.0,
-            fontFamily: 'Noto Serif',
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined),
-            onPressed: () => context.push('/cart'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () => context.push('/login'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => NavMenu.show(context, currentPath: '/browse'),
-          ),
-        ],
-      ),
+      appBar: const SanwariyaAppBar(currentPath: '/browse'),
       body: SingleChildScrollView(
         padding: hPad.copyWith(top: 48, bottom: 48),
         child: Column(
