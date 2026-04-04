@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -91,91 +92,114 @@ class CartScreen extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     final contentPadding = Responsive.value<EdgeInsets>(
       context,
-      mobile: const EdgeInsets.symmetric(horizontal: 24),
-      tablet: const EdgeInsets.symmetric(horizontal: 48),
-      desktop: const EdgeInsets.symmetric(horizontal: 120),
+      mobile: const EdgeInsets.symmetric(horizontal: 44),
+      tablet: const EdgeInsets.symmetric(horizontal: 92),
+      desktop: const EdgeInsets.symmetric(horizontal: 200),
+    );
+
+    final topPadding = Responsive.value<double>(
+      context,
+      mobile: 84,
+      tablet: 100,
+      desktop: 116,
     );
 
     final titleSize = Responsive.value<double>(
       context,
-      mobile: 56,
-      tablet: 62,
-      desktop: 66,
+      mobile: 42,
+      tablet: 48,
+      desktop: 52,
+    );
+
+    final descriptionSize = Responsive.value<double>(
+      context,
+      mobile: 16,
+      tablet: 18,
+      desktop: 19,
     );
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1F180E), AppTheme.surface, AppTheme.surface],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          stops: [0.0, 0.12, 1.0],
-        ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: contentPadding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.shopping_bag_outlined,
-                color: AppTheme.primary,
-                size: 84,
-              ),
-              const SizedBox(height: 28),
-              Text(
-                'Your Cart is Empty',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.playfairDisplay(
-                  textStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontSize: titleSize,
-                    color: AppTheme.onSurface,
-                    height: 1,
+      color: AppTheme.surface,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: contentPadding.copyWith(top: topPadding),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.string(
+                  '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+  <path d="M3 6h18"/>
+  <path d="M16 10a4 4 0 0 1-8 0"/>
+</svg>
+                  ''',
+                  width: 64,
+                  height: 64,
+                  colorFilter: const ColorFilter.mode(
+                    Color(0xFFD4AF37),
+                    BlendMode.srcIn,
                   ),
-                  fontWeight: FontWeight.w700,
                 ),
-              ),
-              const SizedBox(height: 18),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: Text(
-                  "Looks like you haven't added any items to your cart yet.",
+                const SizedBox(height: 24),
+                Text(
+                  'Your Cart is Empty',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppTheme.onSurface,
-                      height: 1.4,
-                    ),
-                    fontWeight: FontWeight.w500,
+                  style: GoogleFonts.playfairDisplay(
+                    textStyle: Theme.of(context).textTheme.displaySmall
+                        ?.copyWith(
+                          fontSize: 36,
+                          color: AppTheme.onSurface,
+                          height: 1,
+                        ),
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-              const SizedBox(height: 34),
-              SizedBox(
-                width: 190,
-                child: ElevatedButton(
-                  onPressed: () => context.go('/collection'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
-                    ),
-                  ),
+                const SizedBox(height: 16),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 430),
                   child: Text(
-                    'Start Shopping',
+                    "Looks like you haven't added any items to your cart yet.",
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
-                      textStyle: Theme.of(context).textTheme.titleMedium,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
+                      textStyle: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(
+                            color: AppTheme.onSurface,
+                            height: 1.4,
+                            fontSize: descriptionSize,
+                          ),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: 190,
+                  child: ElevatedButton(
+                    onPressed: () => context.go('/collection'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: Text(
+                      'Start Shopping',
+                      style: GoogleFonts.inter(
+                        textStyle: Theme.of(context).textTheme.titleMedium,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -197,7 +198,65 @@ class _HeroSection extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 18),
+          const _AnimatedDownArrow(),
         ],
+      ),
+    );
+  }
+}
+
+class _AnimatedDownArrow extends StatefulWidget {
+  const _AnimatedDownArrow();
+
+  @override
+  State<_AnimatedDownArrow> createState() => _AnimatedDownArrowState();
+}
+
+class _AnimatedDownArrowState extends State<_AnimatedDownArrow>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _verticalOffset;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+
+    final curve = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _verticalOffset = Tween<double>(begin: -2, end: 8).animate(curve);
+    _opacity = Tween<double>(begin: 0.55, end: 1).animate(curve);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Opacity(
+            opacity: _opacity.value,
+            child: Transform.translate(
+              offset: Offset(0, _verticalOffset.value),
+              child: child,
+            ),
+          );
+        },
+        child: const Icon(
+          Icons.south_rounded,
+          color: _HomePalette.accent,
+          size: 30,
+        ),
       ),
     );
   }
@@ -244,14 +303,22 @@ class _FeaturedHeaderSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          Text(
-            'Featured Collection',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: headingSize,
-              height: 1.06,
-              color: _HomePalette.primaryText,
-              fontWeight: FontWeight.w700,
+          SizedBox(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'Featured Collection',
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: headingSize,
+                  height: 1.06,
+                  color: _HomePalette.primaryText,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 14),
@@ -401,14 +468,16 @@ class _CategoryExploreHeader extends StatelessWidget {
               'EXPLORE',
               style: GoogleFonts.inter(
                 color: _HomePalette.accent,
-                fontSize: 13,
-                letterSpacing: 6,
+                fontSize: 14,
+                letterSpacing: 4,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 18),
             Text(
               'Shop by Category',
+              maxLines: 1,
+              softWrap: false,
               textAlign: TextAlign.center,
               style: GoogleFonts.playfairDisplay(
                 color: _HomePalette.primaryText,
@@ -558,13 +627,8 @@ class _CategoryListCard extends StatelessWidget {
                           'Explore',
                           style: GoogleFonts.inter(
                             color: _HomePalette.accent,
-                            fontSize: Responsive.value<double>(
-                              context,
-                              mobile: 21,
-                              tablet: 23,
-                              desktop: 24,
-                            ),
-                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -597,15 +661,32 @@ class _OurPromiseSection extends StatelessWidget {
   static const _storyText =
       'At Sanwariya Imitation, every piece tells a story. Our master artisans blend traditional techniques with contemporary design, creating jewelry that transcends time. Each creation is a testament to our unwavering commitment to excellence.';
 
+  static const _premiumQualitySvg = '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+  <path d="M5 3v4"/>
+  <path d="M19 17v4"/>
+  <path d="M3 5h4"/>
+  <path d="M17 19h4"/>
+</svg>
+  ''';
+
+  static const _masterArtisansSvg = '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="8" r="6"/>
+  <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+</svg>
+  ''';
+
   static const _points = <_PromisePointData>[
     _PromisePointData(
-      icon: Icons.auto_awesome_outlined,
+      svgIcon: _premiumQualitySvg,
       title: 'Premium Quality',
       description:
           'Only the finest gold, ethically sourced and certified for purity.',
     ),
     _PromisePointData(
-      icon: Icons.workspace_premium_outlined,
+      svgIcon: _masterArtisansSvg,
       title: 'Master Artisans',
       description:
           'Handcrafted by skilled jewelers with decades of experience.',
@@ -646,6 +727,25 @@ class _OurPromiseSection extends StatelessWidget {
       desktop: 20,
     );
 
+    final titleStyle = GoogleFonts.playfairDisplay(
+      color: _HomePalette.primaryText,
+      fontSize: titleSize,
+      height: 1.04,
+      fontWeight: FontWeight.w700,
+    );
+
+    final goldGradient = const LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: [
+        Color(0xFFB8962E),
+        Color(0xFFD4AF37),
+        Color(0xFFF5E6C8),
+        Color(0xFFE6C76A),
+      ],
+      stops: [0.0, 0.3, 0.6, 1.0],
+    );
+
     return Padding(
       padding: horizontal,
       child: Column(
@@ -661,23 +761,35 @@ class _OurPromiseSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          Text.rich(
-            TextSpan(
-              style: GoogleFonts.playfairDisplay(
-                color: _HomePalette.primaryText,
-                fontSize: titleSize,
-                height: 1.04,
-                fontWeight: FontWeight.w700,
-              ),
-              children: const [
-                TextSpan(text: 'Craftsmanship\n'),
-                TextSpan(
-                  text: 'Beyond ',
-                  style: TextStyle(color: _HomePalette.accentSoft),
+          Text('Craftsmanship', style: titleStyle),
+          Wrap(
+            spacing: 10,
+            children: [
+              ShaderMask(
+                shaderCallback: (bounds) {
+                  return goldGradient.createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  );
+                },
+                blendMode: BlendMode.srcIn,
+                child: Text(
+                  'Beyond',
+                  style: titleStyle.copyWith(color: Colors.white),
                 ),
-                TextSpan(text: 'Compare'),
-              ],
-            ),
+              ),
+              ShaderMask(
+                shaderCallback: (bounds) {
+                  return goldGradient.createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  );
+                },
+                blendMode: BlendMode.srcIn,
+                child: Text(
+                  'Compare',
+                  style: titleStyle.copyWith(color: Colors.white),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 22),
           Text(
@@ -718,7 +830,19 @@ class _PromisePointTile extends StatelessWidget {
             color: _HomePalette.promiseIconBg,
             shape: BoxShape.circle,
           ),
-          child: Icon(point.icon, color: _HomePalette.accent, size: 24),
+          child: point.svgIcon != null
+              ? Center(
+                  child: SvgPicture.string(
+                    point.svgIcon!,
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(
+                      _HomePalette.accentSoft,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                )
+              : Icon(point.icon, color: _HomePalette.accent, size: 24),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -763,15 +887,17 @@ class _PromisePointTile extends StatelessWidget {
 }
 
 class _PromisePointData {
-  final IconData icon;
+  final IconData? icon;
+  final String? svgIcon;
   final String title;
   final String description;
 
   const _PromisePointData({
-    required this.icon,
+    this.icon,
+    this.svgIcon,
     required this.title,
     required this.description,
-  });
+  }) : assert(icon != null || svgIcon != null);
 }
 
 class _EmptyFeaturedState extends StatelessWidget {
@@ -916,9 +1042,9 @@ class _HomeProductCard extends StatelessWidget {
               style: GoogleFonts.inter(
                 textStyle: textTheme.labelSmall,
                 color: _HomePalette.accent,
-                letterSpacing: 1.1,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 10),
@@ -965,7 +1091,7 @@ class _HomeProductCard extends StatelessWidget {
                   style: textTheme.titleMedium?.copyWith(
                     color: _HomePalette.primaryText,
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 Text(

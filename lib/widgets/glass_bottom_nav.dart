@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class GlassBottomNav extends StatelessWidget {
@@ -8,12 +9,49 @@ class GlassBottomNav extends StatelessWidget {
   const GlassBottomNav({super.key, required this.currentPath});
 
   static const _navHeight = 80.0;
+  static const _iconColor = Color(0xFFD4AF37);
+
+  static const _homeSvg = '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M3 12l9-9 9 9v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+</svg>
+  ''';
+
+  static const _plusSvg = '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <circle cx="12" cy="12" r="10"/>
+  <path d="M8 12h8"/>
+  <path d="M12 8v8"/>
+</svg>
+  ''';
+
+  static const _gridSvg = '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <rect x="3" y="3" width="7" height="7"/>
+  <rect x="14" y="3" width="7" height="7"/>
+  <rect x="14" y="14" width="7" height="7"/>
+  <rect x="3" y="14" width="7" height="7"/>
+</svg>
+  ''';
+
+  static const _cartSvg = '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <circle cx="9" cy="21" r="1"/>
+  <circle cx="20" cy="21" r="1"/>
+  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+</svg>
+  ''';
+
+  static const _userSvg = '''
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <circle cx="12" cy="7" r="4"/>
+  <path d="M5.5 21a7.5 7.5 0 0 1 13 0"/>
+</svg>
+  ''';
 
   static const _glassDecoration = BoxDecoration(
-    color: Color(0x99353534),
-    boxShadow: [
-      BoxShadow(color: Colors.black54, blurRadius: 48, offset: Offset(0, -24)),
-    ],
+    color: Color(0xFF0E0E12),
+    border: Border(top: BorderSide(color: _iconColor, width: 1)),
   );
 
   void _navigate(BuildContext context, String route, {bool replace = false}) {
@@ -83,7 +121,7 @@ class GlassBottomNav extends StatelessWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  static const _itemColor = Color(0xFFF2CA50);
+  static const _itemColor = GlassBottomNav._iconColor;
 
   final IconData icon;
   final String label;
@@ -94,6 +132,22 @@ class _NavItem extends StatelessWidget {
     required this.label,
     required this.onTap,
   });
+
+  String _resolveIconSvg() {
+    if (icon == Icons.home_outlined) {
+      return GlassBottomNav._homeSvg;
+    }
+    if (icon == Icons.add_circle_outline) {
+      return GlassBottomNav._plusSvg;
+    }
+    if (icon == Icons.grid_view_outlined) {
+      return GlassBottomNav._gridSvg;
+    }
+    if (icon == Icons.shopping_cart_outlined) {
+      return GlassBottomNav._cartSvg;
+    }
+    return GlassBottomNav._userSvg;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +161,12 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: _itemColor, size: 26),
+            SvgPicture.string(
+              _resolveIconSvg(),
+              width: 26,
+              height: 26,
+              colorFilter: const ColorFilter.mode(_itemColor, BlendMode.srcIn),
+            ),
             const SizedBox(height: 4),
             Text(
               label,

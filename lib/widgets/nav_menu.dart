@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../services/mock_data_provider.dart';
 import '../theme/app_theme.dart';
+import 'sanwariya_app_bar.dart';
 
 class NavMenu extends StatelessWidget {
   final String currentPath;
@@ -28,149 +26,71 @@ class NavMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final menuBackground = AppTheme.surface.withValues(alpha: 0.95);
+
     return Scaffold(
-      backgroundColor: AppTheme.surface.withValues(alpha: 0.95),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
+      backgroundColor: menuBackground,
+      appBar: SanwariyaAppBar(
+        currentPath: currentPath,
+        backgroundColor: menuBackground,
+        showMenuOnDesktop: true,
+        showCloseMenuIcon: true,
+        onMenuPressed: () => Navigator.pop(context),
+        onCartPressed: () {
+          Navigator.pop(context);
+          context.push('/cart');
+        },
+        onUserPressed: () {
+          Navigator.pop(context);
+          context.push('/login');
+        },
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(color: AppTheme.surfaceContainerHighest, thickness: 1),
+          Expanded(
+            child: ListView(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24.0,
-                vertical: 16.0,
+                vertical: 24.0,
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Sanwariya\nImitation',
-                      style: GoogleFonts.playfairDisplay(
-                        textStyle: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(color: AppTheme.primary, height: 1.2),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: AppTheme.onSurface,
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                              context.push('/cart');
-                            },
-                          ),
-
-                          const _NavCartBadge(),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.person_outline,
-                          color: AppTheme.onSurface,
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          context.push('/login');
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          color: AppTheme.onSurface,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const Divider(
-              color: AppTheme.surfaceContainerHighest,
-              thickness: 1,
-            ),
-
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 24.0,
+              children: [
+                _MenuItem(title: 'Home', path: '/', currentPath: currentPath),
+                _MenuItem(
+                  title: 'Shop',
+                  path: '/collection',
+                  currentPath: currentPath,
                 ),
-                children: [
-                  _MenuItem(title: 'Home', path: '/', currentPath: currentPath),
-                  _MenuItem(
-                    title: 'Shop',
-                    path: '/collection',
-                    currentPath: currentPath,
-                  ),
-                  _MenuItem(
-                    title: 'Categories',
-                    path: '/browse',
-                    currentPath: currentPath,
-                  ),
-                  _MenuItem(
-                    title: 'Offers',
-                    path: '/offers',
-                    currentPath: currentPath,
-                  ),
-                  _MenuItem(
-                    title: 'Track Order',
-                    path: '/track',
-                    currentPath: currentPath,
-                  ),
-                  _MenuItem(
-                    title: 'About',
-                    path: '/about',
-                    currentPath: currentPath,
-                  ),
-                  _MenuItem(
-                    title: 'Contact Us',
-                    path: '/contact',
-                    currentPath: currentPath,
-                  ),
-                ],
-              ),
+                _MenuItem(
+                  title: 'Categories',
+                  path: '/browse',
+                  currentPath: currentPath,
+                ),
+                _MenuItem(
+                  title: 'Offers',
+                  path: '/offers',
+                  currentPath: currentPath,
+                ),
+                _MenuItem(
+                  title: 'Track Order',
+                  path: '/track',
+                  currentPath: currentPath,
+                ),
+                _MenuItem(
+                  title: 'About',
+                  path: '/about',
+                  currentPath: currentPath,
+                ),
+                _MenuItem(
+                  title: 'Contact Us',
+                  path: '/contact',
+                  currentPath: currentPath,
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NavCartBadge extends StatelessWidget {
-  const _NavCartBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final count = context.select<MockDataProvider, int>((p) => p.cartCount);
-    if (count == 0) return const SizedBox.shrink();
-    return Positioned(
-      right: 6,
-      top: 6,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(
-          color: AppTheme.primary,
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          '$count',
-          style: const TextStyle(
-            color: AppTheme.onPrimary,
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
           ),
-        ),
+        ],
       ),
     );
   }

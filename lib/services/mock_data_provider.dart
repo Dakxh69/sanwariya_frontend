@@ -29,9 +29,27 @@ class MockDataProvider extends ChangeNotifier {
     ),
     Category(
       id: 'c5',
-      name: 'Watches',
+      name: 'Bangles',
       imageUrl:
-          'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=600',
+          'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=600',
+    ),
+    Category(
+      id: 'c6',
+      name: 'Chains',
+      imageUrl:
+          'https://images.unsplash.com/photo-1599643478524-fb66f7f6eed9?auto=format&fit=crop&q=80&w=600',
+    ),
+    Category(
+      id: 'c7',
+      name: 'Pendants',
+      imageUrl:
+          'https://images.unsplash.com/photo-1599643478524-fb66f7f6eed9?auto=format&fit=crop&q=80&w=600',
+    ),
+    Category(
+      id: 'c8',
+      name: 'New',
+      imageUrl:
+          'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=600',
     ),
   ];
   List<Category> get categories => _categories;

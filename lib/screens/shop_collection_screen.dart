@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -47,8 +48,29 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   final TextEditingController _minPriceCtrl = TextEditingController();
   final TextEditingController _maxPriceCtrl = TextEditingController();
   String _sortOrder = 'Newest First';
+  static const int _itemsPerPage = 3;
+  int _currentPage = 1;
 
   List<Product> _cachedFiltered = const [];
+
+  int get _totalPages {
+    final pages = (_cachedFiltered.length / _itemsPerPage).ceil();
+    return pages == 0 ? 1 : pages;
+  }
+
+  List<Product> _productsForCurrentPage() {
+    if (_cachedFiltered.isEmpty) {
+      return const [];
+    }
+
+    final start = (_currentPage - 1) * _itemsPerPage;
+    if (start >= _cachedFiltered.length) {
+      return const [];
+    }
+
+    final end = math.min(start + _itemsPerPage, _cachedFiltered.length);
+    return _cachedFiltered.sublist(start, end);
+  }
 
   static const _categories = [
     'All',
@@ -57,6 +79,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     'Chains',
     'Earrings',
     'Necklaces',
+    'New',
     'Pendants',
     'Rings',
   ];
@@ -79,9 +102,12 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   void _updateFilter() {
     final products = context.read<MockDataProvider>().products;
     var result = products.where((p) {
+      final selectedCategory = _selectedCategory.toLowerCase();
       final catMatch =
-          _selectedCategory == 'All' ||
-          p.category.toLowerCase() == _selectedCategory.toLowerCase();
+          selectedCategory == 'all' ||
+          (selectedCategory == 'new'
+              ? p.isNewArrival
+              : p.category.toLowerCase() == selectedCategory);
       final minPrice = double.tryParse(_minPriceCtrl.text);
       final maxPrice = double.tryParse(_maxPriceCtrl.text);
       final minMatch = minPrice == null || p.price >= minPrice;
@@ -97,6 +123,10 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     }
 
     _cachedFiltered = result;
+
+    if (_currentPage > _totalPages) {
+      _currentPage = _totalPages;
+    }
   }
 
   void _clearFilters() {
@@ -105,6 +135,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     setState(() {
       _selectedCategory = 'All';
       _selectedPurity = null;
+      _currentPage = 1;
       _updateFilter();
     });
   }
@@ -116,7 +147,8 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     final showBottom = Responsive.showBottomNav(context);
     final isDesktop = Responsive.isDesktop(context);
     final hPad = Responsive.horizontalPadding(context);
-    final products = _cachedFiltered;
+    final filteredProducts = _cachedFiltered;
+    final products = _productsForCurrentPage();
 
     return Scaffold(
       bottomNavigationBar: showBottom
@@ -138,17 +170,27 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                       textStyle: Theme.of(context).textTheme.titleLarge
                           ?.copyWith(
                             color: const Color.fromARGB(255, 255, 255, 255),
-                            fontSize: 42,
+                            fontSize: 36,
                             letterSpacing: 1.0,
                           ),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    'Discover our exquisite range of handcrafted jewellery',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppTheme.onSurfaceVariant,
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [
+                        Color(0xFFD1D5DB), // gray-300
+                        Color(0xFF9CA3AF), // gray-400
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      'Discover our exquisite range of handcrafted jewellery',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white, // required for gradient
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -201,6 +243,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                               isSelected: _selectedCategory == cat,
                               onTap: () => setState(() {
                                 _selectedCategory = cat;
+                                _currentPage = 1;
                                 _updateFilter();
                               }),
                             ),
@@ -224,6 +267,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                                 _selectedPurity = _selectedPurity == p
                                     ? null
                                     : p;
+                                _currentPage = 1;
                                 _updateFilter();
                               }),
                             ),
@@ -242,13 +286,19 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                           _PriceField(
                             controller: _minPriceCtrl,
                             hint: 'Min Price',
-                            onChanged: (_) => setState(_updateFilter),
+                            onChanged: (_) => setState(() {
+                              _currentPage = 1;
+                              _updateFilter();
+                            }),
                           ),
                           const SizedBox(height: 12),
                           _PriceField(
                             controller: _maxPriceCtrl,
                             hint: 'Max Price',
-                            onChanged: (_) => setState(_updateFilter),
+                            onChanged: (_) => setState(() {
+                              _currentPage = 1;
+                              _updateFilter();
+                            }),
                           ),
 
                           const SizedBox(height: 24),
@@ -287,7 +337,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${products.length} products found',
+                        '${filteredProducts.length} products found',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: AppTheme.onSurface,
                           fontSize: 14,
@@ -349,8 +399,124 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
             ),
           ),
 
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: hPad.copyWith(top: 8, bottom: 24),
+              child: _CollectionPaginationFooter(
+                currentPage: _currentPage,
+                totalPages: _totalPages,
+                onPrevious: _currentPage > 1
+                    ? () => setState(() => _currentPage--)
+                    : null,
+                onNext: _currentPage < _totalPages
+                    ? () => setState(() => _currentPage++)
+                    : null,
+              ),
+            ),
+          ),
+
           const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
         ],
+      ),
+    );
+  }
+}
+
+class _CollectionPaginationFooter extends StatelessWidget {
+  final int currentPage;
+  final int totalPages;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
+
+  const _CollectionPaginationFooter({
+    required this.currentPage,
+    required this.totalPages,
+    required this.onPrevious,
+    required this.onNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final borderColor = AppTheme.outlineVariant.withValues(alpha: 0.85);
+
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _PaginationButton(
+                label: 'Previous',
+                onPressed: onPrevious,
+                borderColor: borderColor,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                'Page $currentPage of $totalPages',
+                style: GoogleFonts.inter(
+                  textStyle: textTheme.titleMedium,
+                  color: AppTheme.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _PaginationButton(
+                label: 'Next',
+                onPressed: onNext,
+                borderColor: borderColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaginationButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final Color borderColor;
+
+  const _PaginationButton({
+    required this.label,
+    required this.onPressed,
+    required this.borderColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = onPressed != null;
+
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(84, 40),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        backgroundColor: AppTheme.background,
+        side: BorderSide(color: borderColor),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          textStyle: Theme.of(context).textTheme.titleMedium,
+          color: isEnabled
+              ? AppTheme.onSurface
+              : AppTheme.onSurfaceVariant.withValues(alpha: 0.6),
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+        ),
       ),
     );
   }
