@@ -48,10 +48,11 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   final TextEditingController _minPriceCtrl = TextEditingController();
   final TextEditingController _maxPriceCtrl = TextEditingController();
   String _sortOrder = 'Newest First';
-  static const int _itemsPerPage = 3;
+  static const int _itemsPerPage = 6;
   int _currentPage = 1;
 
   List<Product> _cachedFiltered = const [];
+  List<Product>? _lastProviderProducts;
 
   int get _totalPages {
     final pages = (_cachedFiltered.length / _itemsPerPage).ceil();
@@ -88,8 +89,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    _updateFilter();
+    _syncFilteredProducts(context.read<MockDataProvider>().products);
   }
 
   @override
@@ -99,8 +99,22 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
     super.dispose();
   }
 
-  void _updateFilter() {
-    final products = context.read<MockDataProvider>().products;
+  void _syncFilteredProducts(List<Product> products) {
+    if (identical(_lastProviderProducts, products)) {
+      return;
+    }
+
+    _lastProviderProducts = products;
+    _updateFilter(products);
+  }
+
+  void _updateFilterWithCurrentProducts() {
+    final sourceProducts =
+        _lastProviderProducts ?? context.read<MockDataProvider>().products;
+    _updateFilter(sourceProducts);
+  }
+
+  void _updateFilter(List<Product> products) {
     var result = products.where((p) {
       final selectedCategory = _selectedCategory.toLowerCase();
       final catMatch =
@@ -136,19 +150,33 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
       _selectedCategory = 'All';
       _selectedPurity = null;
       _currentPage = 1;
-      _updateFilter();
+      _updateFilterWithCurrentProducts();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    context.select<MockDataProvider, List<Product>>((p) => p.products);
+    final providerProducts = context.select<MockDataProvider, List<Product>>(
+      (p) => p.products,
+    );
+    _syncFilteredProducts(providerProducts);
 
     final showBottom = Responsive.showBottomNav(context);
-    final isDesktop = Responsive.isDesktop(context);
     final hPad = Responsive.horizontalPadding(context);
     final filteredProducts = _cachedFiltered;
     final products = _productsForCurrentPage();
+    final gridCount = Responsive.value<int>(
+      context,
+      mobile: 2,
+      tablet: 2,
+      desktop: 3,
+    );
+    final gridAspectRatio = Responsive.value<double>(
+      context,
+      mobile: 0.56,
+      tablet: 0.62,
+      desktop: 0.64,
+    );
 
     return Scaffold(
       bottomNavigationBar: showBottom
@@ -244,7 +272,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                               onTap: () => setState(() {
                                 _selectedCategory = cat;
                                 _currentPage = 1;
-                                _updateFilter();
+                                _updateFilterWithCurrentProducts();
                               }),
                             ),
                           ),
@@ -268,7 +296,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                                     ? null
                                     : p;
                                 _currentPage = 1;
-                                _updateFilter();
+                                _updateFilterWithCurrentProducts();
                               }),
                             ),
                           ),
@@ -288,7 +316,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                             hint: 'Min Price',
                             onChanged: (_) => setState(() {
                               _currentPage = 1;
-                              _updateFilter();
+                              _updateFilterWithCurrentProducts();
                             }),
                           ),
                           const SizedBox(height: 12),
@@ -297,7 +325,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                             hint: 'Max Price',
                             onChanged: (_) => setState(() {
                               _currentPage = 1;
-                              _updateFilter();
+                              _updateFilterWithCurrentProducts();
                             }),
                           ),
 
@@ -367,7 +395,7 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
                             items: _sortMenuItems,
                             onChanged: (v) => setState(() {
                               _sortOrder = v ?? _sortOrder;
-                              _updateFilter();
+                              _updateFilterWithCurrentProducts();
                             }),
                           ),
                         ),
@@ -381,17 +409,19 @@ class _ShopCollectionScreenState extends State<ShopCollectionScreen> {
 
           SliverPadding(
             padding: hPad.copyWith(top: 16, bottom: 16),
-            sliver: SliverList(
+            sliver: SliverGrid(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: gridCount,
+                mainAxisSpacing: 24,
+                crossAxisSpacing: 16,
+                childAspectRatio: gridAspectRatio,
+              ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: SizedBox(
-                    height: isDesktop ? 650 : 560,
-                    child: _ProductCardItem(
-                      key: ValueKey(products[index].id),
-                      product: products[index],
-                      metaLabel: _selectedPurity ?? 'N/A',
-                    ),
+                (context, index) => RepaintBoundary(
+                  child: _ProductCardItem(
+                    key: ValueKey(products[index].id),
+                    product: products[index],
+                    metaLabel: _selectedPurity ?? 'N/A',
                   ),
                 ),
                 childCount: products.length,
@@ -564,10 +594,12 @@ class _ProductCardItem extends StatelessWidget {
                 children: [
                   Container(
                     color: AppTheme.surfaceContainerLowest,
-                    child: AestheticNetworkImage(
-                      imageUrl: product.imageUrl,
-                      fit: BoxFit.cover,
-                      borderRadius: BorderRadius.zero,
+                    child: RepaintBoundary(
+                      child: AestheticNetworkImage(
+                        imageUrl: product.imageUrl,
+                        fit: BoxFit.cover,
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
                   ),
                   Positioned(
@@ -599,8 +631,8 @@ class _ProductCardItem extends StatelessWidget {
                 textStyle: textTheme.labelSmall,
                 color: AppTheme.primary,
                 letterSpacing: 1,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
               ),
             ),
             const SizedBox(height: 14),
@@ -647,7 +679,7 @@ class _ProductCardItem extends StatelessWidget {
                   style: textTheme.titleMedium?.copyWith(
                     color: AppTheme.onSurface,
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 Text(
