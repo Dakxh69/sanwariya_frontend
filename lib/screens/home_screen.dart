@@ -359,19 +359,34 @@ class _FeaturedProductsSliver extends StatelessWidget {
           tablet: const EdgeInsets.fromLTRB(24, 28, 24, 0),
           desktop: const EdgeInsets.fromLTRB(80, 36, 80, 0),
         );
+        final crossAxisCount = Responsive.value<int>(
+          context,
+          mobile: 1,
+          tablet: 2,
+          desktop: 3,
+        );
+        final cardAspectRatio = Responsive.value<double>(
+          context,
+          mobile: 0.63,
+          tablet: 0.66,
+          desktop: 0.69,
+        );
 
         return SliverPadding(
           padding: contentPadding,
-          sliver: SliverList(
+          sliver: SliverGrid(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              mainAxisSpacing: 18,
+              crossAxisSpacing: 16,
+              childAspectRatio: cardAspectRatio,
+            ),
             delegate: SliverChildBuilderDelegate((context, index) {
               final product = products[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 18),
-                child: RepaintBoundary(
-                  child: _HomeProductCard(
-                    key: ValueKey(product.id),
-                    product: product,
-                  ),
+              return RepaintBoundary(
+                child: _HomeProductCard(
+                  key: ValueKey(product.id),
+                  product: product,
                 ),
               );
             }, childCount: products.length),
